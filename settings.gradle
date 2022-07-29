@@ -1,0 +1,2 @@
+rootProject.name = 'api-testing-bot'
+include('api-testing-bot')
