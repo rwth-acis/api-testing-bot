@@ -5,6 +5,7 @@ import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
+import i5.las2peer.services.apiTestingBot.util.OpenAPIUtils;
 import io.swagger.annotations.Api;
 import org.json.simple.JSONObject;
 

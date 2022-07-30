@@ -1,4 +1,4 @@
-package i5.las2peer.services.apiTestingBot;
+package i5.las2peer.services.apiTestingBot.util;
 
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;

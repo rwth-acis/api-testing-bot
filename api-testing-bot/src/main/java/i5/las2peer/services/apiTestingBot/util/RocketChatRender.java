@@ -1,4 +1,4 @@
-package i5.las2peer.services.apiTestingBot;
+package i5.las2peer.services.apiTestingBot.util;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.core.util.Yaml;
