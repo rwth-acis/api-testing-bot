@@ -14,6 +14,7 @@ import org.json.simple.JSONObject;
 public class APITestingBot extends RESTService {
 
     private String botManagerURL;
+    private String caeBackendURL;
 
     public APITestingBot() {
         setFieldValues();
@@ -75,4 +76,7 @@ public class APITestingBot extends RESTService {
         return webhookPayload;
     }
 
+    public String getCaeBackendURL() {
+        return caeBackendURL;
+    }
 }
