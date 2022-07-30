@@ -5,20 +5,30 @@ import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
+import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 import i5.las2peer.services.apiTestingBot.util.OpenAPIUtils;
 import io.swagger.annotations.Api;
 import org.json.simple.JSONObject;
+
+import java.util.HashMap;
 
 @Api
 @ServicePath("/apitestingbot")
 @ManualDeployment
 public class APITestingBot extends RESTService {
 
+    public static HashMap<String, TestModelingContext> channelModelingContexts = new HashMap<>();
+
     private String botManagerURL;
     private String caeBackendURL;
 
     public APITestingBot() {
         setFieldValues();
+    }
+
+    @Override
+    protected void initResources() {
+        getResourceConfig().register(RESTResources.class);
     }
 
     /**
