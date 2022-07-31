@@ -1,0 +1,81 @@
+## intent: greeting
+- Hallo
+- Moin
+- hallo
+- hey
+- Hi
+- Guten Tag
+- guten tag 
+- hello
+
+## intent: modeltest
+- model a test case
+- model test
+- create new test case
+- create test
+- model new test
+- model new test case
+- add new test
+- create new test
+
+## intent: yes
+- Yes
+- yes
+- ja
+- yes please
+- ja bitte
+- yeah
+
+## intent: no
+- No
+- no
+- nein
+- no thanks
+- nein danke
+- nope
+
+## intent: type_jsonobject
+- JSONObject
+- jsonobject
+- JSON object
+- JSON Object
+- json obj
+- object
+- a JSON object
+- an object
+
+## intent: type_jsonarray
+- JSONArray
+- jsonarray
+- JSON array
+- JSON Array
+- json array
+- array
+- JSON list
+- a JSON array
+
+## intent: type_string
+- String
+- string
+- a string
+
+## intent: type_number
+- Number
+- number
+- Integer
+- integer
+- int
+- int32
+- a number
+- Digit
+- digit
+- digits
+- Digits
+- a number
+- an integer
+
+## intent: type_boolean
+- Boolean
+- boolean
+- bool
+- Bool
