@@ -1,10 +1,10 @@
-/template_project/output/
-/template_project/export/
+/api-testing-bot/output/
+/api-testing-bot/export/
 /node-storage/
 /.las2peer/
 /tmp/
 /log/
-/template_project/log/
+/api-testing-bot/log/
 /lib/
 /etc/ivy/ivy.jar
 /service/
