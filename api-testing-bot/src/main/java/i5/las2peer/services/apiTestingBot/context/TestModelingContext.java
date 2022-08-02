@@ -256,6 +256,25 @@ public class TestModelingContext {
                 pathParams.put(entry.getKey(), entry.getValue());
             }
         }
+
+        int operatorId = 0;
+
+        // assertions need to have different ids
+        for(int i = 0; i < assertions.size(); i++) {
+            RequestAssertion a = assertions.get(i);
+            a.setId(i);
+
+            if(a instanceof BodyAssertion) {
+                BodyAssertion b = (BodyAssertion) a;
+                BodyAssertionOperator operator = b.getOperator();
+                while(operator != null) {
+                    operator.setId(operatorId);
+                    operatorId++;
+                    operator = operator.getFollowingOperator();
+                }
+            }
+        }
+
         TestRequest request = new TestRequest(requestMethod, requestPath, pathParams, -1, requestBody, assertions);
         TestCase testCase = new TestCase(testCaseName, List.of(request));
         return new TestModel(List.of(testCase));
