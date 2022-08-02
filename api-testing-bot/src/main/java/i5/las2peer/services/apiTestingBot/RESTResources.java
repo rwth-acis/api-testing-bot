@@ -14,6 +14,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import java.io.Serializable;
+
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
 
 @Api
@@ -160,6 +162,18 @@ public class RESTResources {
         res.put("closeContext", context.getState() == FINAL);
 
         if(context.getState() == FINAL) {
+            if(context.getMicroserviceComponent() != null) {
+                // store test case (as a suggestion)
+                int versionedModelId = ((Long) context.getMicroserviceComponent().get("versionedModelId")).intValue();
+                try {
+                    Context.get().invoke("i5.las2peer.services.modelPersistenceService.ModelPersistenceService",
+                            "addTestSuggestion", new Serializable[]{versionedModelId, context.toTestModel(),
+                                    "Modeled with API testing bot."});
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             APITestingBot.channelModelingContexts.remove(channel);
         }
 
