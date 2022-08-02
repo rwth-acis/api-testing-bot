@@ -1,8 +1,6 @@
 package i5.las2peer.services.apiTestingBot.context;
 
-import i5.las2peer.apiTestModel.BodyAssertion;
-import i5.las2peer.apiTestModel.BodyAssertionOperator;
-import i5.las2peer.apiTestModel.RequestAssertion;
+import i5.las2peer.apiTestModel.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -249,5 +247,17 @@ public class TestModelingContext {
         JSONObject projectMetadata = (JSONObject) getProject().get("metadata");
         JSONArray components = (JSONArray) projectMetadata.get("components");
         return components.stream().filter(component -> ((JSONObject) component).get("type").equals("microservice")).toList();
+    }
+
+    public TestModel toTestModel() {
+        JSONObject pathParams = new JSONObject();
+        if(pathParamValues != null) {
+            for (Map.Entry<String, String> entry : pathParamValues.entrySet()) {
+                pathParams.put(entry.getKey(), entry.getValue());
+            }
+        }
+        TestRequest request = new TestRequest(requestMethod, requestPath, pathParams, -1, requestBody, assertions);
+        TestCase testCase = new TestCase(testCaseName, List.of(request));
+        return new TestModel(List.of(testCase));
     }
 }
