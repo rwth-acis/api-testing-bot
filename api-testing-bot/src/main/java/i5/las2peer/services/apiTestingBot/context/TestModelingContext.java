@@ -119,26 +119,6 @@ public class TestModelingContext {
         this.project = project;
     }
 
-    public void nextState() {
-        switch (this.state) {
-            case INIT:
-                this.state = SELECT_PROJECT;
-                break;
-            case SELECT_PROJECT:
-                this.state = SELECT_MICROSERVICE;
-                break;
-            case SELECT_MICROSERVICE:
-                this.state = NAME_TEST_CASE;
-                break;
-            case NAME_TEST_CASE:
-                this.state = SELECT_METHOD;
-                break;
-            case ENTER_PATH_PARAMS:
-                this.state = BODY_QUESTION;
-                break;
-        }
-    }
-
     public void setState(TestModelingState state) {
         this.state = state;
     }

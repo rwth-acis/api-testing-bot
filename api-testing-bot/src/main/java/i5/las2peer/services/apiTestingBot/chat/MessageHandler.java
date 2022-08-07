@@ -61,7 +61,7 @@ public class MessageHandler {
             // there's only one project, use that
             JSONObject project = projectsLinkedToChannel.get(0);
             context.setProject(project);
-            context.nextState();
+            context.setState(SELECT_MICROSERVICE);
             responseMessageSB.append(" " + TEST_ADD_TO_PROJECT((String) project.get("name")));
             return true;
         } else {
@@ -73,7 +73,7 @@ public class MessageHandler {
                 responseMessageSB.append("\n" + i + ". " + projectName);
                 i++;
             }
-            context.nextState();
+            context.setState(SELECT_MICROSERVICE);
             return false;
         }
     }
@@ -118,7 +118,7 @@ public class MessageHandler {
                 // there's only one microservice => use that
                 JSONObject component = microserviceComponents.get(0);
                 context.setMicroserviceComponent(component);
-                context.nextState();
+                context.setState(SELECT_MICROSERVICE);
                 handleNextState = true;
                 responseMessageSB.append(" " + TEST_ADD_TO_MICROSERVICE((String) component.get("name")));
             } else {
@@ -130,7 +130,7 @@ public class MessageHandler {
                     responseMessageSB.append("\n" + i + ". " + serviceName);
                     i++;
                 }
-                context.nextState();
+                context.setState(SELECT_MICROSERVICE);
             }
         }
         return handleNextState;
@@ -164,7 +164,7 @@ public class MessageHandler {
         // error might have occurred if user needed to enter a number to choose a microservice but input was invalid
         if (!error) {
             responseMessageSB.append(ENTER_TEST_CASE_NAME);
-            context.nextState();
+            context.setState(NAME_TEST_CASE);
         }
         return false;
     }
@@ -212,7 +212,7 @@ public class MessageHandler {
         }
         context.setAvailableMethods(availableMethods);
 
-        context.nextState();
+        context.setState(SELECT_METHOD);
         return false;
     }
 
@@ -249,7 +249,6 @@ public class MessageHandler {
             } else {
                 // no path params
                 context.setState(BODY_QUESTION);
-                context.nextState();
             }
             return true;
         }
@@ -289,7 +288,7 @@ public class MessageHandler {
                 path = path.replace("{" + entry.getKey() + "}", entry.getValue());
             }
             responseMessageSB.append(REQUEST_URL_INFO(path));
-            context.nextState();
+            context.setState(BODY_QUESTION);
             return true;
         }
 
