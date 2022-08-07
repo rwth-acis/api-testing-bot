@@ -52,23 +52,43 @@ public class RESTResources {
 
         do {
             if (initialState == INIT && intent.equals(Intent.MODEL_TEST)) {
-                handleNextState = messageHandler.handleInit(responseMessageSB, context, channel);
+                handleNextState = messageHandler.handleInit(responseMessageSB, context);
             }
 
-            if ((handleNextState && context.getState() == SELECT_PROJECT) || initialState == SELECT_PROJECT) {
+            if (handleNextState && context.getState() == SELECT_PROJECT) {
+                handleNextState = messageHandler.handleProjectSelectionQuestion(responseMessageSB, context, channel);
+            }
+
+            if (initialState == SELECT_PROJECT) {
                 handleNextState = messageHandler.handleProjectSelection(responseMessageSB, context, message);
             }
 
-            if ((handleNextState && context.getState() == SELECT_MICROSERVICE) || initialState == SELECT_MICROSERVICE) {
+            if (handleNextState && context.getState() == SELECT_MICROSERVICE) {
+                handleNextState = messageHandler.handleMicroserviceSelectionQuestion(responseMessageSB, context);
+            }
+
+            if (initialState == SELECT_MICROSERVICE) {
                 handleNextState = messageHandler.handleMicroserviceSelection(responseMessageSB, context, message);
+            }
+
+            if (handleNextState && context.getState() == NAME_TEST_CASE) {
+                handleNextState = messageHandler.handleTestCaseNameQuestion(responseMessageSB);
             }
 
             if (initialState == NAME_TEST_CASE) {
                 handleNextState = messageHandler.handleTestCaseName(responseMessageSB, context, message);
             }
 
+            if (handleNextState && context.getState() == SELECT_METHOD) {
+                handleNextState = messageHandler.handleMethodSelectionQuestion(responseMessageSB, context);
+            }
+
             if (initialState == SELECT_METHOD) {
                 handleNextState = messageHandler.handleMethodSelection(responseMessageSB, context, message);
+            }
+
+            if (handleNextState && context.getState() == ENTER_PATH_PARAMS) {
+                handleNextState = messageHandler.handlePathParamsQuestion(responseMessageSB, context);
             }
 
             if ((handleNextState && context.getState() == ENTER_PATH_PARAMS) || initialState == ENTER_PATH_PARAMS) {

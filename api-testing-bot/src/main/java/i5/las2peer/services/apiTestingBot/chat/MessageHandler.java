@@ -35,20 +35,31 @@ public class MessageHandler {
     }
 
     /**
-     * Handles the initial message of the user that starts a test modeling conversation.
+     * Reacts to the initial message of the user that starts a test modeling conversation.
+     *
+     * @param responseMessageSB StringBuilder
+     * @param context           Current test modeling context
+     * @return Whether the next state should be handled too.
+     */
+    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
+        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
+        context.setState(SELECT_PROJECT);
+        return true;
+    }
+
+    /**
      * Loads projects that are linked to the given channel.
      * If there is no project linked to the channel, no test case can be modeled.
      * If there is one project linked to the channel, chooses this project.
      * If there are multiple projects linked to the channel, asks the user which one should be chosen.
      *
      * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @param channel           Current channel
+     * @param context Current test modeling context
+     * @param channel Channel name
      * @return Whether the next state should be handled too.
      */
-    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context, String channel) {
-        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
-
+    public boolean handleProjectSelectionQuestion(StringBuilder responseMessageSB, TestModelingContext context,
+                                                  String channel) {
         // get projects that are linked to the channel
         List<JSONObject> projectsLinkedToChannel = ProjectServiceHelper.getProjectsLinkedToChannel(channel);
         context.setProjectsLinkedToChannel(projectsLinkedToChannel);
@@ -73,17 +84,13 @@ public class MessageHandler {
                 responseMessageSB.append("\n" + i + ". " + projectName);
                 i++;
             }
-            context.setState(SELECT_MICROSERVICE);
             return false;
         }
     }
 
     /**
-     * If there are multiple projects linked to the current channel, then the project selection is handled first.
-     * After the project selection is done:
-     * If project contains no microservice, no test case can be modeled.
-     * If project contains one microservice, chooses this microservice.
-     * If project contains multiple microservices, asks the user which one should be chosen.
+     * If there are multiple projects linked to the current channel, then the project selection is handled.
+     * After that, sets state to SELECT_MICROSERVICE.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
@@ -91,54 +98,63 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleProjectSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean handleNextState = false;
-        boolean error = false;
-
-        // check if no project is selected yet (e.g., if there were multiple projects linked to the channel and the
-        // user needed to select one of them)
-        if (context.getProject() == null) {
-            // user should have entered a number
-            List<JSONObject> projectsLinkedToChannel = context.getProjectsLinkedToChannel();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, projectsLinkedToChannel.size(), (num) -> {
-                // select this project
-                JSONObject selectedProject = projectsLinkedToChannel.get(num - 1);
-                context.setProject(selectedProject);
-                responseMessageSB.append(TEST_ADD_TO_PROJECT((String) selectedProject.get("name")));
-            });
-        }
+        // there were multiple projects linked to the channel and the user needed to select one of them
+        // user should have entered a number
+        List<JSONObject> projectsLinkedToChannel = context.getProjectsLinkedToChannel();
+        boolean error = handleNumberSelectionQuestion(responseMessageSB, message, projectsLinkedToChannel.size(), (num) -> {
+            // select this project
+            JSONObject selectedProject = projectsLinkedToChannel.get(num - 1);
+            context.setProject(selectedProject);
+            responseMessageSB.append(TEST_ADD_TO_PROJECT((String) selectedProject.get("name")));
+        });
 
         // error might have occurred if user needed to enter a number to choose a project but input was invalid
         if (!error) {
-            // get components of project
-            List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
-            if (microserviceComponents.size() == 0) {
-                responseMessageSB.append("\n" + NO_MICROSERVICE_IN_PROJECT);
-                context.setState(FINAL);
-            } else if (microserviceComponents.size() == 1) {
-                // there's only one microservice => use that
-                JSONObject component = microserviceComponents.get(0);
-                context.setMicroserviceComponent(component);
-                context.setState(SELECT_MICROSERVICE);
-                handleNextState = true;
-                responseMessageSB.append(" " + TEST_ADD_TO_MICROSERVICE((String) component.get("name")));
-            } else {
-                // there are multiple microservices, need to select one
-                responseMessageSB.append(" " + SELECT_MICROSERVICE_FOR_TEST_CASE);
-                int i = 1;
-                for (JSONObject service : microserviceComponents) {
-                    String serviceName = (String) service.get("name");
-                    responseMessageSB.append("\n" + i + ". " + serviceName);
-                    i++;
-                }
-                context.setState(SELECT_MICROSERVICE);
-            }
+            context.setState(SELECT_MICROSERVICE);
+            return true;
         }
-        return handleNextState;
+
+        return false;
     }
 
     /**
-     * If there are multiple microservices in the selected project, then the microservice selection is handled first.
-     * After a microservice has been selected, the user gets asked to enter a name for the test case.
+     * If project contains no microservice, no test case can be modeled.
+     * If project contains one microservice, chooses this microservice.
+     * If project contains multiple microservices, asks the user which one should be chosen.
+     *
+     * @param responseMessageSB StringBuilder
+     * @param context Current test modeling context
+     * @return Whether the next state should be handled too.
+     */
+    public boolean handleMicroserviceSelectionQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
+        // get components of project
+        List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
+        if (microserviceComponents.size() == 0) {
+            responseMessageSB.append("\n" + NO_MICROSERVICE_IN_PROJECT);
+            context.setState(FINAL);
+            return false;
+        } else if (microserviceComponents.size() == 1) {
+            // there's only one microservice => use that
+            JSONObject component = microserviceComponents.get(0);
+            context.setMicroserviceComponent(component);
+            responseMessageSB.append(" " + TEST_ADD_TO_MICROSERVICE((String) component.get("name")));
+            context.setState(NAME_TEST_CASE);
+            return true;
+        } else {
+            // there are multiple microservices, need to select one
+            responseMessageSB.append(" " + SELECT_MICROSERVICE_FOR_TEST_CASE);
+            int i = 1;
+            for (JSONObject service : microserviceComponents) {
+                String serviceName = (String) service.get("name");
+                responseMessageSB.append("\n" + i + ". " + serviceName);
+                i++;
+            }
+            return false;
+        }
+    }
+
+    /**
+     * If there are multiple microservices in the selected project, then the microservice selection is handled.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
@@ -146,32 +162,36 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleMicroserviceSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean error = false;
-
-        // check if no microservice is selected yet (e.g., if there were multiple services contained in the selected
-        // project and the user needed to select one of them)
-        if (context.getMicroserviceComponent() == null) {
-            // user should have entered a number
-            List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, microserviceComponents.size(), (num) -> {
-                // select this microservice
-                JSONObject selectedService = microserviceComponents.get(num - 1);
-                context.setMicroserviceComponent(selectedService);
-                responseMessageSB.append(TEST_ADD_TO_MICROSERVICE((String) selectedService.get("name")));
-            });
-        }
+        // user should have entered a number
+        List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
+        boolean error = handleNumberSelectionQuestion(responseMessageSB, message, microserviceComponents.size(), (num) -> {
+            // select this microservice
+            JSONObject selectedService = microserviceComponents.get(num - 1);
+            context.setMicroserviceComponent(selectedService);
+            responseMessageSB.append(TEST_ADD_TO_MICROSERVICE((String) selectedService.get("name")));
+        });
 
         // error might have occurred if user needed to enter a number to choose a microservice but input was invalid
         if (!error) {
-            responseMessageSB.append(ENTER_TEST_CASE_NAME);
             context.setState(NAME_TEST_CASE);
+            return true;
         }
         return false;
     }
 
     /**
-     * Stores the previously entered test case name to the context, then lists the methods (from OpenAPI doc) that
-     * can be tested and asks the user to choose one of them.
+     * Ask user to enter a name for the test case.
+     *
+     * @param responseMessageSB StringBuilder
+     * @return Whether the next state should be handled too.
+     */
+    public boolean handleTestCaseNameQuestion(StringBuilder responseMessageSB) {
+        responseMessageSB.append(ENTER_TEST_CASE_NAME);
+        return false;
+    }
+
+    /**
+     * Stores the previously entered test case name to the context.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
@@ -180,9 +200,21 @@ public class MessageHandler {
      */
     public boolean handleTestCaseName(StringBuilder responseMessageSB, TestModelingContext context, String message) {
         context.setTestCaseName(message);
+        responseMessageSB.append(TEST_CASE_NAME_INFO(message));
+        context.setState(SELECT_METHOD);
+        return true;
+    }
 
+    /**
+     * Lists the methods (from OpenAPI doc) that can be tested and asks the user to choose one of them.
+     *
+     * @param responseMessageSB StringBuilder
+     * @param context Current test modeling context
+     * @return Whether the next state should be handled too.
+     */
+    public boolean handleMethodSelectionQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
         // ask which method should be tested
-        responseMessageSB.append(TEST_CASE_NAME_INFO(message) + " " + SELECT_METHOD_TO_TEST);
+        responseMessageSB.append(SELECT_METHOD_TO_TEST);
 
         // fetch OpenAPI doc of microservice from CAE
         int versionedModelId = context.getComponentVersionedModelId();
@@ -211,15 +243,12 @@ public class MessageHandler {
             }
         }
         context.setAvailableMethods(availableMethods);
-
-        context.setState(SELECT_METHOD);
         return false;
     }
 
     /**
      * Handles the selection of the method that should be tested.
-     * Then switches to state ENTER_PATH_PARAMS or BODY_QUESTION depending on whether the operation contains path
-     * parameters.
+     * Then switches to state ENTER_PATH_PARAMS.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
@@ -227,32 +256,42 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleMethodSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean error = false;
-        if (context.getRequestMethod() == null) {
-            // user should have entered a number
-            List<Map.Entry<PathItem.HttpMethod, String>> availableMethods = context.getAvailableMethods();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, availableMethods.size(), (num) -> {
-                // select this method
-                Map.Entry<PathItem.HttpMethod, String> selectedMethod = availableMethods.get(num - 1);
-                context.setRequestMethod(selectedMethod.getKey().name());
-                context.setRequestPath(selectedMethod.getValue());
-                responseMessageSB.append(TEST_METHOD_INFO(selectedMethod.getKey().name(), selectedMethod.getValue()));
-            });
-        }
+        // user should have entered a number
+        List<Map.Entry<PathItem.HttpMethod, String>> availableMethods = context.getAvailableMethods();
+        boolean error = handleNumberSelectionQuestion(responseMessageSB, message, availableMethods.size(), (num) -> {
+            // select this method
+            Map.Entry<PathItem.HttpMethod, String> selectedMethod = availableMethods.get(num - 1);
+            context.setRequestMethod(selectedMethod.getKey().name());
+            context.setRequestPath(selectedMethod.getValue());
+            responseMessageSB.append(TEST_METHOD_INFO(selectedMethod.getKey().name(), selectedMethod.getValue()));
+        });
 
         // error might have occurred if user needed to enter a number to choose a method but input was invalid
         if (!error) {
-            // check if there are path parameters
-            if (context.getPathParams().size() > 0) {
-                context.setState(ENTER_PATH_PARAMS);
-                responseMessageSB.append(SET_PATH_PARAM_VALUES);
-            } else {
-                // no path params
-                context.setState(BODY_QUESTION);
-            }
+            context.setState(ENTER_PATH_PARAMS);
             return true;
         }
         return false;
+    }
+
+    /**
+     * If method contains path parameters, sends info message that values for these parameters need to be set.
+     * Otherwise switches to state BODY_QUESTION.
+     *
+     * @param responseMessageSB StringBuilder
+     * @param context Current test modeling context
+     * @return Whether the next state should be handled too.
+     */
+    public boolean handlePathParamsQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
+        // check if there are path parameters
+        if (context.getPathParams().size() > 0) {
+            responseMessageSB.append(SET_PATH_PARAM_VALUES);
+            return true;
+        } else {
+            // no path params
+            context.setState(BODY_QUESTION);
+            return true;
+        }
     }
 
     /**

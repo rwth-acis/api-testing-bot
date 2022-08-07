@@ -95,6 +95,10 @@ public class TestModelingContext {
         this.state = INIT;
     }
 
+    public String getTestCaseName() {
+        return testCaseName;
+    }
+
     public void setTestCaseName(String testCaseName) {
         this.testCaseName = testCaseName;
     }
