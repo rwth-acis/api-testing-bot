@@ -79,3 +79,23 @@
 - boolean
 - bool
 - Bool
+
+## intent: request_method_get
+- GET
+- get
+- GET request
+
+## intent: request_method_post
+- POST
+- post
+- POST request
+
+## intent: request_method_put
+- PUT
+- put
+- PUT request
+
+## intent: request_method_delete
+- DELETE
+- delete
+- DELETE request
