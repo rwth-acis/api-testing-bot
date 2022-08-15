@@ -13,7 +13,7 @@ public enum TestModelingState {
      * If there is only one project linked to the channel, it is chosen automatically.
      * If there are multiple projects linked to the channel, the users can choose one of them.
      */
-    SELECT_PROJECT,
+    RC_SELECT_PROJECT,
 
     /**
      * This state handles the selection of a microservice.
@@ -22,7 +22,7 @@ public enum TestModelingState {
      * If there is only one microservice in the project, it is chosen automatically.
      * If there are multiple microservices in the project, the users can choose one of them.
      */
-    SELECT_MICROSERVICE,
+    RC_SELECT_MICROSERVICE,
 
     /**
      * In this state the users are asked to enter a name for the test case.
@@ -34,12 +34,32 @@ public enum TestModelingState {
      * In this state, the user is asked to select a method (from OpenAPI doc) that should be tested.
      * Also handles answer of user to this question.
      */
-    SELECT_METHOD,
+    RC_SELECT_METHOD,
 
     /**
      * State used to enter all path parameters.
      */
-    ENTER_PATH_PARAMS,
+    RC_ENTER_PATH_PARAMS,
+
+    /**
+     * In this state, the user gets asked to enter the request method.
+     */
+    GH_METHOD_QUESTION,
+
+    /**
+     * In this state, the user enters the request method.
+     */
+    GH_ENTER_METHOD,
+
+    /**
+     * In this state, the user gets asked to enter the request path.
+     */
+    GH_PATH_QUESTION,
+
+    /**
+     * In this state, the user enters the request path.
+     */
+    GH_ENTER_PATH,
 
     /**
      * In this state, the user gets asked whether the test request should contain a JSON body.
