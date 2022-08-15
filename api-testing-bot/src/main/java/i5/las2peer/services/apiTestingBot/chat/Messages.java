@@ -75,4 +75,12 @@ public class Messages {
         return "Do you want to further edit this assertion and assert something on the field \""
                 + fieldName + "\"? (e.g., check that the field has a specific type)";
     }
+
+
+    public static String GH_ENTER_REQUEST_METHOD = "Please enter the request method (e.g., GET, POST,...):";
+    public static String GH_ENTER_REQUEST_PATH = "Please enter the request path (e.g., /mensa/Aachen/dishes):";
+
+    public static String GH_REQUEST_INFO(String method, String path) {
+        return "The test request will be `" + method + "` `" + path + "`.";
+    }
 }

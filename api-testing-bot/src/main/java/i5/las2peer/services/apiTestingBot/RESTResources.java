@@ -1,8 +1,11 @@
 package i5.las2peer.services.apiTestingBot;
 
 import i5.las2peer.api.Context;
+import i5.las2peer.services.apiTestingBot.chat.GHMessageHandler;
 import i5.las2peer.services.apiTestingBot.chat.Intent;
 import i5.las2peer.services.apiTestingBot.chat.MessageHandler;
+import i5.las2peer.services.apiTestingBot.chat.RCMessageHandler;
+import i5.las2peer.services.apiTestingBot.context.MessengerType;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 import i5.las2peer.services.apiTestingBot.context.TestModelingState;
 import io.swagger.annotations.Api;
@@ -16,6 +19,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.Serializable;
 
+import static i5.las2peer.services.apiTestingBot.context.MessengerType.*;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
 
 @Api
@@ -34,6 +38,8 @@ public class RESTResources {
         JSONObject bodyJSON = (JSONObject) JSONValue.parse(body);
         String intent = (String) bodyJSON.get("intent");
         String message = (String) bodyJSON.get("msg");
+        String messenger = (String) bodyJSON.get("messenger");
+        MessengerType messengerType = MessengerType.fromString(messenger);
         String channel = (String) bodyJSON.get("channel");
 
         // get current modeling context for this channel
@@ -48,27 +54,32 @@ public class RESTResources {
 
         StringBuilder responseMessageSB = new StringBuilder();
         APITestingBot service = (APITestingBot) Context.get().getService();
-        MessageHandler messageHandler = new MessageHandler(service.getCaeBackendURL());
+
+        // setup message handler
+        MessageHandler messageHandler;
+        if(messengerType == ROCKET_CHAT) messageHandler = new RCMessageHandler(service.getCaeBackendURL());
+        else if(messengerType == GITHUB_ISSUES || messengerType == GITHUB_PR) messageHandler = new GHMessageHandler();
+        else return Response.status(Response.Status.BAD_REQUEST).entity("Unsupported messenger type.").build();
 
         do {
             if (initialState == INIT && intent.equals(Intent.MODEL_TEST)) {
                 handleNextState = messageHandler.handleInit(responseMessageSB, context);
             }
 
-            if (handleNextState && context.getState() == SELECT_PROJECT) {
-                handleNextState = messageHandler.handleProjectSelectionQuestion(responseMessageSB, context, channel);
+            if (handleNextState && context.getState() == RC_SELECT_PROJECT) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleProjectSelectionQuestion(responseMessageSB, context, channel);
             }
 
-            if (initialState == SELECT_PROJECT) {
-                handleNextState = messageHandler.handleProjectSelection(responseMessageSB, context, message);
+            if (initialState == RC_SELECT_PROJECT) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleProjectSelection(responseMessageSB, context, message);
             }
 
-            if (handleNextState && context.getState() == SELECT_MICROSERVICE) {
-                handleNextState = messageHandler.handleMicroserviceSelectionQuestion(responseMessageSB, context);
+            if (handleNextState && context.getState() == RC_SELECT_MICROSERVICE) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleMicroserviceSelectionQuestion(responseMessageSB, context);
             }
 
-            if (initialState == SELECT_MICROSERVICE) {
-                handleNextState = messageHandler.handleMicroserviceSelection(responseMessageSB, context, message);
+            if (initialState == RC_SELECT_MICROSERVICE) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleMicroserviceSelection(responseMessageSB, context, message);
             }
 
             if (handleNextState && context.getState() == NAME_TEST_CASE) {
@@ -79,20 +90,36 @@ public class RESTResources {
                 handleNextState = messageHandler.handleTestCaseName(responseMessageSB, context, message);
             }
 
-            if (handleNextState && context.getState() == SELECT_METHOD) {
-                handleNextState = messageHandler.handleMethodSelectionQuestion(responseMessageSB, context);
+            if (handleNextState && context.getState() == RC_SELECT_METHOD) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleMethodSelectionQuestion(responseMessageSB, context);
             }
 
-            if (initialState == SELECT_METHOD) {
-                handleNextState = messageHandler.handleMethodSelection(responseMessageSB, context, message);
+            if (initialState == RC_SELECT_METHOD) {
+                handleNextState = ((RCMessageHandler) messageHandler).handleMethodSelection(responseMessageSB, context, message);
             }
 
-            if (handleNextState && context.getState() == ENTER_PATH_PARAMS) {
-                handleNextState = messageHandler.handlePathParamsQuestion(responseMessageSB, context);
+            if (handleNextState && context.getState() == RC_ENTER_PATH_PARAMS) {
+                handleNextState = ((RCMessageHandler) messageHandler).handlePathParamsQuestion(responseMessageSB, context);
             }
 
-            if ((handleNextState && context.getState() == ENTER_PATH_PARAMS) || initialState == ENTER_PATH_PARAMS) {
-                handleNextState = messageHandler.handlePathParams(responseMessageSB, context, message);
+            if ((handleNextState && context.getState() == RC_ENTER_PATH_PARAMS) || initialState == RC_ENTER_PATH_PARAMS) {
+                handleNextState = ((RCMessageHandler) messageHandler).handlePathParams(responseMessageSB, context, message);
+            }
+
+            if(handleNextState && context.getState() == GH_METHOD_QUESTION) {
+                handleNextState = ((GHMessageHandler) messageHandler).handleMethodQuestion(responseMessageSB, context);
+            }
+
+            if(initialState == GH_ENTER_METHOD) {
+                handleNextState = ((GHMessageHandler) messageHandler).handleMethod(responseMessageSB, context, intent);
+            }
+
+            if(handleNextState && context.getState() == GH_PATH_QUESTION) {
+                handleNextState = ((GHMessageHandler) messageHandler).handlePathQuestion(responseMessageSB, context);
+            }
+
+            if(initialState == GH_ENTER_PATH) {
+                handleNextState = ((GHMessageHandler) messageHandler).handlePath(responseMessageSB, context, message);
             }
 
             if ((handleNextState && context.getState() == BODY_QUESTION)) {
@@ -171,18 +198,12 @@ public class RESTResources {
             initialState = FINAL;
 
         } while(handleNextState);
-        String responseMessage = responseMessageSB.toString();
-
-        if(responseMessage.isEmpty()) responseMessage = "Error!";
 
         System.out.println("New state is: " + APITestingBot.channelModelingContexts.get(channel).getState().name());
 
-        JSONObject res = new JSONObject();
-        res.put("text", responseMessage);
-        res.put("closeContext", context.getState() == FINAL);
 
         if(context.getState() == FINAL) {
-            if(context.getMicroserviceComponent() != null) {
+            if(messengerType == ROCKET_CHAT && context.getMicroserviceComponent() != null) {
                 // store test case (as a suggestion)
                 int versionedModelId = ((Long) context.getMicroserviceComponent().get("versionedModelId")).intValue();
                 try {
@@ -192,13 +213,34 @@ public class RESTResources {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else if(messengerType == GITHUB_ISSUES || messengerType == GITHUB_PR) {
+                try {
+                    // generate code for the test case
+                    String code = (String) Context.get().invoke("i5.las2peer.services.codeGenerationService.CodeGenerationService",
+                            "generateTestMethod", new Serializable[]{ context.toTestModel().getTestCases().get(0) });
+
+                    // post generated code as a comment
+                    responseMessageSB.append("Here is the generated test method code:");
+                    responseMessageSB.append("\n");
+                    responseMessageSB.append("```java");
+                    responseMessageSB.append(code);
+                    responseMessageSB.append("```");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             APITestingBot.channelModelingContexts.remove(channel);
         }
 
+        String responseMessage = responseMessageSB.toString();
+
+        if(responseMessage.isEmpty()) responseMessage = "Error!";
+
+        JSONObject res = new JSONObject();
+        res.put("text", responseMessage);
+        res.put("closeContext", context.getState() == FINAL);
+
         return Response.status(200).entity(res.toJSONString()).build();
     }
-
-
 }
