@@ -22,6 +22,16 @@ public class APITestingBot extends RESTService {
     private String botManagerURL;
     private String caeBackendURL;
 
+    /**
+     * Id of GitHub app that the bot uses.
+     */
+    private int gitHubAppId;
+
+    /**
+     * Private key of GitHub app that the bot uses.
+     */
+    private String gitHubAppPrivateKey;
+
     public APITestingBot() {
         setFieldValues();
     }
@@ -89,5 +99,17 @@ public class APITestingBot extends RESTService {
 
     public String getCaeBackendURL() {
         return caeBackendURL;
+    }
+
+    public String getBotManagerURL() {
+        return botManagerURL;
+    }
+
+    public int getGitHubAppId() {
+        return gitHubAppId;
+    }
+
+    public String getGitHubAppPrivateKey() {
+        return gitHubAppPrivateKey;
     }
 }
