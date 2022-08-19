@@ -22,6 +22,16 @@ public class APITestingBot extends RESTService {
     private String botManagerURL;
     private String caeBackendURL;
 
+    /**
+     * Id of GitHub app that the bot uses.
+     */
+    private int gitHubAppId;
+
+    /**
+     * Private key of GitHub app that the bot uses.
+     */
+    private String gitHubAppPrivateKey;
+
     public APITestingBot() {
         setFieldValues();
     }
@@ -63,7 +73,7 @@ public class APITestingBot extends RESTService {
      * @param webhookPayload Payload of the webhook call
      * @return JSONObject that can be used as the content of a monitoring message to trigger a webhook call.
      */
-    private JSONObject createWebhook(String url, JSONObject webhookPayload) {
+    public static JSONObject createWebhook(String url, JSONObject webhookPayload) {
         JSONObject webhook = new JSONObject();
         webhook.put("url", url);
         webhook.put("payload", webhookPayload);
@@ -78,7 +88,7 @@ public class APITestingBot extends RESTService {
      * @param channel   Channel to which the message should be posted.
      * @return JSONObject representing the payload for a webhook call to the SBF that will trigger a chat message.
      */
-    private JSONObject createWebhookPayload(String message, String messenger, String channel) {
+    public static JSONObject createWebhookPayload(String message, String messenger, String channel) {
         JSONObject webhookPayload = new JSONObject();
         webhookPayload.put("event", "chat_message");
         webhookPayload.put("message", message);
@@ -89,5 +99,17 @@ public class APITestingBot extends RESTService {
 
     public String getCaeBackendURL() {
         return caeBackendURL;
+    }
+
+    public String getBotManagerURL() {
+        return botManagerURL;
+    }
+
+    public int getGitHubAppId() {
+        return gitHubAppId;
+    }
+
+    public String getGitHubAppPrivateKey() {
+        return gitHubAppPrivateKey;
     }
 }

@@ -1,6 +1,7 @@
 package i5.las2peer.services.apiTestingBot;
 
 import i5.las2peer.api.Context;
+import i5.las2peer.apiTestModel.*;
 import i5.las2peer.services.apiTestingBot.chat.GHMessageHandler;
 import i5.las2peer.services.apiTestingBot.chat.Intent;
 import i5.las2peer.services.apiTestingBot.chat.MessageHandler;
@@ -8,16 +9,17 @@ import i5.las2peer.services.apiTestingBot.chat.RCMessageHandler;
 import i5.las2peer.services.apiTestingBot.context.MessengerType;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 import i5.las2peer.services.apiTestingBot.context.TestModelingState;
+import i5.las2peer.services.apiTestingBot.util.PRTestGenHelper;
 import io.swagger.annotations.Api;
+import kong.unirest.Unirest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import java.io.Serializable;
+import java.net.HttpURLConnection;
 
 import static i5.las2peer.services.apiTestingBot.context.MessengerType.*;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
@@ -243,4 +245,84 @@ public class RESTResources {
 
         return Response.status(200).entity(res.toJSONString()).build();
     }
+
+    /**
+     * Gets called by SBF if user comments "@testingbot code".
+     *
+     * @param body
+     * @return Response message containing the generated code.
+     */
+    @POST
+    @Path("/test/code")
+    public Response generateTestCode(String body) {
+        String responseMessage = "";
+
+        JSONObject bodyJSON = (JSONObject) JSONValue.parse(body);
+        String message = (String) bodyJSON.get("msg");
+        String messenger = (String) bodyJSON.get("messenger");
+        MessengerType messengerType = MessengerType.fromString(messenger);
+        String channel = (String) bodyJSON.get("channel");
+
+        if(message.equalsIgnoreCase("@testingbot code") && messengerType == GITHUB_PR &&
+                PRTestGenHelper.generatedTestCases.containsKey(channel)) {
+            TestCase generatedTestCase = PRTestGenHelper.generatedTestCases.get(channel);
+
+            // generate code for the test case
+            try {
+                String code = (String) Context.get().invoke("i5.las2peer.services.codeGenerationService.CodeGenerationService",
+                        "generateTestMethod", new Serializable[]{ generatedTestCase });
+
+                // post generated code as a comment
+                responseMessage += "Here is the generated test method code:";
+                responseMessage += "\n";
+                responseMessage += "```java\n";
+                responseMessage += code;
+                responseMessage += "```";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        JSONObject res = new JSONObject();
+        res.put("text", responseMessage);
+
+        return Response.status(200).entity(res.toJSONString()).build();
+    }
+
+    /**
+     * Endpoint that receives the webhook events from the GitHub app.
+     * The events are redirected to the SBF (e.g., to react to issue or PR comments).
+     * If the event is a pull request workflow run event, it is also checked if the API testing bot can generate
+     * a test case for an operation that has been added or changed within the pull request.
+     *
+     * @param body Event payload
+     * @param eventName Name of GitHub event
+     * @param gitHubAppId Id of GitHub app
+     * @return 200
+     */
+    @POST
+    @Path("/github/webhook/{gitHubAppId}")
+    public Response receiveWebhookEvent(String body, @HeaderParam("X-GitHub-Event") String eventName,
+                                        @PathParam("gitHubAppId") int gitHubAppId) {
+        APITestingBot service = (APITestingBot) Context.get().getService();
+        if(service.getGitHubAppId() != gitHubAppId) return Response.status(HttpURLConnection.HTTP_INTERNAL_ERROR).build();
+
+        // redirect event to SBF
+        this.redirectWebhookEventToSBF(gitHubAppId, eventName, body);
+
+        JSONObject jsonBody = (JSONObject) JSONValue.parse(body);
+        if(PRTestGenHelper.isRelevantWorkflowEvent(eventName, jsonBody)) {
+            PRTestGenHelper.handleWorkflowEvent(jsonBody, service.getBotManagerURL(), service.getGitHubAppId(),
+                    service.getGitHubAppPrivateKey());
+        }
+
+        return Response.status(HttpURLConnection.HTTP_OK).build();
+    }
+
+    private void redirectWebhookEventToSBF(int gitHubAppId, String eventName, String body) {
+        APITestingBot service = (APITestingBot) Context.get().getService();
+        String sbfWebhookUrl = service.getBotManagerURL() + "/github/webhook/" + gitHubAppId;
+        Unirest.post(sbfWebhookUrl).body(body).header("X-GitHub-Event", eventName).asEmpty();
+    }
+
 }
