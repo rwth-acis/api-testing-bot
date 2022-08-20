@@ -34,6 +34,7 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleTestCaseNameQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(ENTER_TEST_CASE_NAME);
         return false;
     }
@@ -59,6 +60,7 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleBodyQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(INCLUDE_REQUEST_BODY_QUESTION);
         return false;
     }
@@ -116,6 +118,7 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleAssertionsQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(INCLUDE_ASSERTIONS_QUESTION);
         return false;
     }
@@ -147,6 +150,7 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleAssertionTypeQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         appendLinesWithBreaks(responseMessageSB, SELECT_ASSERTION_TYPE, ASSERTION_TYPE_STATUS_CODE, ASSERTION_TYPE_RESPONSE_BODY);
         return false;
     }
@@ -229,7 +233,7 @@ public abstract class MessageHandler {
                 responseMessageSB.append("\n- " + ((BodyAssertion) assertion).getOperator().toString());
             }
         }
-        responseMessageSB.append("\n");
+        responseMessageSB.append("\n\n");
         context.setState(ADD_ANOTHER_ASSERTION_QUESTION);
         return true;
     }
@@ -256,6 +260,7 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleBodyAssertionTypeQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         appendLinesWithBreaks(responseMessageSB, SELECT_BODY_ASSERTION_TYPE, BODY_ASSERTION_TYPE_1,
                 BODY_ASSERTION_TYPE_2, BODY_ASSERTION_TYPE_3, BODY_ASSERTION_TYPE_4, BODY_ASSERTION_TYPE_5,
                 BODY_ASSERTION_TYPE_6);

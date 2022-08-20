@@ -48,7 +48,7 @@ public class Messages {
     }
 
     public static String TEST_CASE_NAME_INFO(String name) {
-        return "Test case will be named " + name + ".";
+        return "Test case will be named \"" + name + "\".";
     }
 
     public static String ENTER_NUMBER_BETWEEN(int min, int max) {

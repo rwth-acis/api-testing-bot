@@ -222,6 +222,7 @@ public class RESTResources {
                             "generateTestMethod", new Serializable[]{ context.toTestModel().getTestCases().get(0) });
 
                     // post generated code as a comment
+                    if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
                     responseMessageSB.append("Here is the generated test method code:");
                     responseMessageSB.append("\n");
                     responseMessageSB.append("```java");

@@ -46,6 +46,7 @@ public class GHMessageHandler extends MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleMethodQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(GH_ENTER_REQUEST_METHOD);
         context.setState(GH_ENTER_METHOD);
         return false;

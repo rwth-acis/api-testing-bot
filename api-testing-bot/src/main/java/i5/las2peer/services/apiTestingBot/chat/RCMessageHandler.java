@@ -200,6 +200,7 @@ public class RCMessageHandler extends MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleMethodSelectionQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         // ask which method should be tested
         responseMessageSB.append(SELECT_METHOD_TO_TEST);
 
@@ -272,6 +273,7 @@ public class RCMessageHandler extends MessageHandler {
     public boolean handlePathParamsQuestion(StringBuilder responseMessageSB, TestModelingContext context) {
         // check if there are path parameters
         if (context.getPathParams().size() > 0) {
+            if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
             responseMessageSB.append(SET_PATH_PARAM_VALUES);
             return true;
         } else {
@@ -306,6 +308,7 @@ public class RCMessageHandler extends MessageHandler {
         if (context.getPathParams().size() != context.getPathParamValues().size()) {
             // update first unset parameter
             unsetParam = getFirstUnsetPathParam(context);
+            if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
             responseMessageSB.append(ENTER_PATH_PARAM_VALUE(unsetParam.getName()));
         } else {
             // all params are set => replace params with their values in path
@@ -313,6 +316,7 @@ public class RCMessageHandler extends MessageHandler {
             for (Map.Entry<String, String> entry : context.getPathParamValues().entrySet()) {
                 path = path.replace("{" + entry.getKey() + "}", entry.getValue());
             }
+            if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
             responseMessageSB.append(REQUEST_URL_INFO(path));
             context.setState(BODY_QUESTION);
             return true;
