@@ -6,6 +6,10 @@ public enum TestModelingState {
      */
     INIT,
 
+    API_TEST_FAMILIARITY_QUESTION,
+
+    ENTER_TEST_CASE_DESCRIPTION,
+
     /**
      * This state handles the selection of a CAE project (which must be linked to the current channel).
      * In this state, the available projects are listed.

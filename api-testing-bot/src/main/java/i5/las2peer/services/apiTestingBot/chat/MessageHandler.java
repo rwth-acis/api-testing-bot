@@ -1,14 +1,16 @@
 package i5.las2peer.services.apiTestingBot.chat;
 
-import i5.las2peer.apiTestModel.BodyAssertion;
-import i5.las2peer.apiTestModel.BodyAssertionOperator;
-import i5.las2peer.apiTestModel.RequestAssertion;
-import i5.las2peer.apiTestModel.StatusCodeAssertion;
+import i5.las2peer.apiTestModel.*;
+import i5.las2peer.services.apiTestingBot.codex.CodeToTestModel;
+import i5.las2peer.services.apiTestingBot.codex.CodexAPI;
+import i5.las2peer.services.apiTestingBot.codex.CodexTestGen;
 import i5.las2peer.services.apiTestingBot.context.BodyAssertionType;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.List;
 
 import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.*;
@@ -25,7 +27,68 @@ public abstract class MessageHandler {
      * @param context           Current test modeling context
      * @return Whether the next state should be handled too.
      */
-    public abstract boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context);
+    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
+        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
+        context.setState(API_TEST_FAMILIARITY_QUESTION);
+        return true;
+    }
+
+    public boolean handleAPITestFamiliarityQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
+        responseMessageSB.append(API_TEST_FAMILIARITY_QUESTION_TEXT);
+        return false;
+    }
+
+    public abstract boolean handleAPITestFamiliarityQuestionAnswer(StringBuilder responseMessageSB, TestModelingContext context, String intent);
+
+    public boolean handleTestCaseDescriptionQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
+        responseMessageSB.append(ENTER_TEST_CASE_DESCRIPTION_TEXT);
+        return false;
+    }
+
+    public boolean handleTestCaseDescription(StringBuilder responseMessageSB, TestModelingContext context, String message,
+                                             String codexAPIToken) {
+        TestRequest generatedRequest = null;
+        try {
+            generatedRequest = new CodexTestGen(codexAPIToken).descriptionToTestModel(message);
+        } catch (CodexAPI.CodexAPIException | IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (CodeToTestModel.CodeToTestModelException e) {
+            e.printStackTrace();
+            responseMessageSB.append(ERROR_TEST_CASE_GENERATION);
+            return false;
+        }
+        context.setRequestMethod(generatedRequest.getType());
+        context.setRequestPath(generatedRequest.getUrl());
+        context.setPathParamValues(generatedRequest.getPathParams());
+        context.setTestCaseName("TestCaseName");
+        context.setRequestBody(generatedRequest.getBody());
+        context.getAssertions().addAll(generatedRequest.getAssertions());
+        responseMessageSB.append(getTestDescription(generatedRequest));
+        context.setState(FINAL);
+        return false;
+    }
+
+    public abstract String getTestDescription(TestRequest request);
+
+    /**
+     * Returns the request url of the given test request where the path parameters are replaced with their values.
+     *
+     * @param request TestRequest
+     * @return Request url of the given test request where the path parameters are replaced with their values.
+     */
+    protected static String getRequestUrlWithPathParamValues(TestRequest request) {
+        String url = request.getUrl();
+        JSONObject pathParams = request.getPathParams();
+        for(Object key : pathParams.keySet()) {
+            String paramValue = String.valueOf(pathParams.get(key));
+            if(paramValue.isEmpty()) paramValue = "<Enter " + key + ">";
+            url = url.replace("{" + key + "}", paramValue);
+        }
+        return url;
+    }
 
     /**
      * Ask user to enter a name for the test case.

@@ -1,7 +1,12 @@
 package i5.las2peer.services.apiTestingBot.chat;
 
+import i5.las2peer.apiTestModel.BodyAssertion;
+import i5.las2peer.apiTestModel.RequestAssertion;
+import i5.las2peer.apiTestModel.StatusCodeAssertion;
+import i5.las2peer.apiTestModel.TestRequest;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 
+import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.handleYesNoQuestion;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.*;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
 
@@ -10,18 +15,17 @@ import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
  */
 public class GHMessageHandler extends MessageHandler {
 
-    /**
-     * Reacts to the initial message of the user that starts a test modeling conversation.
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @return Whether the next state should be handled too.
-     */
     @Override
-    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
-        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
-        context.setState(NAME_TEST_CASE);
-        return true;
+    public boolean handleAPITestFamiliarityQuestionAnswer(StringBuilder responseMessageSB, TestModelingContext context, String intent) {
+        return handleYesNoQuestion(responseMessageSB, intent, () -> {
+            responseMessageSB.append(OK);
+            context.setState(ENTER_TEST_CASE_DESCRIPTION);
+            return true;
+        }, () -> {
+            responseMessageSB.append(OK);
+            context.setState(NAME_TEST_CASE);
+            return true;
+        });
     }
 
     /**
@@ -98,5 +102,38 @@ public class GHMessageHandler extends MessageHandler {
         responseMessageSB.append(GH_REQUEST_INFO(context.getRequestMethod(), context.getRequestPath()));
         context.setState(BODY_QUESTION);
         return true;
+    }
+
+    @Override
+    public String getTestDescription(TestRequest request) {
+        return getGitHubTestDescription(request);
+    }
+
+    public static String getGitHubTestDescription(TestRequest request) {
+        String description = "";
+        String url = getRequestUrlWithPathParamValues(request);
+        description += "**Method & Path:** `" + request.getType() + "` `" + url + "`\n";
+
+        // request auth info
+        String auth = request.getAgent() == -1 ? "None" : "User Agent";
+        description += "**Authorization:** " +  auth + "\n";
+
+        // request body (if exists)
+        if(request.getBody() != null && !request.getBody().isEmpty()) {
+            description += "**Body:**\n" + "```json" + request.getBody() + "```\n";
+        }
+
+        // list assertions
+        description += "**Assertions:**\n";
+        for(RequestAssertion assertion : request.getAssertions()) {
+            description += "- ";
+            if(assertion instanceof StatusCodeAssertion) {
+                description += "Expected status code: " + ((StatusCodeAssertion) assertion).getStatusCodeValue();
+            } else {
+                description += ((BodyAssertion) assertion).getOperator().toString();
+            }
+            description += "\n";
+        }
+        return description;
     }
 }

@@ -4,6 +4,7 @@ import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.apiTestModel.*;
 import i5.las2peer.services.apiTestingBot.APITestingBot;
+import i5.las2peer.services.apiTestingBot.chat.GHMessageHandler;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -179,51 +180,12 @@ public class PRTestGenHelper {
 
         // show request method and path
         TestRequest request = testCase.getRequests().get(0);
-        String url = getRequestUrlWithPathParamValues(request);
-        message += "**Method & Path:** `" + request.getType() + "` `" + url + "`\n";
-
-        // request auth info
-        String auth = request.getAgent() == -1 ? "None" : "User Agent";
-        message += "**Authorization:** " +  auth + "\n";
-
-        // request body (if exists)
-        if(request.getBody() != null && !request.getBody().isEmpty()) {
-            message += "**Body:**\n" + "```json" + request.getBody() + "```\n";
-        }
-
-        // list assertions
-        message += "**Assertions:**\n";
-        for(RequestAssertion assertion : request.getAssertions()) {
-            message += "- ";
-            if(assertion instanceof StatusCodeAssertion) {
-                message += "Expected status code: " + ((StatusCodeAssertion) assertion).getStatusCodeValue();
-            } else {
-                message += ((BodyAssertion) assertion).getOperator().toString();
-            }
-            message += "\n";
-        }
+        message += GHMessageHandler.getGitHubTestDescription(request);
 
         // append overview of available bot commands
         message += BOT_COMMAND_OVERVIEW;
 
         return message;
-    }
-
-    /**
-     * Returns the request url of the given test request where the path parameters are replaced with their values.
-     *
-     * @param request TestRequest
-     * @return Request url of the given test request where the path parameters are replaced with their values.
-     */
-    private static String getRequestUrlWithPathParamValues(TestRequest request) {
-        String url = request.getUrl();
-        JSONObject pathParams = request.getPathParams();
-        for(Object key : pathParams.keySet()) {
-            String paramValue = String.valueOf(pathParams.get(key));
-            if(paramValue.isEmpty()) paramValue = "<Enter " + key + ">";
-            url = url.replace("{" + key + "}", paramValue);
-        }
-        return url;
     }
 
     /**
