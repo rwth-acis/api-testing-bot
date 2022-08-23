@@ -3,6 +3,8 @@ package i5.las2peer.services.apiTestingBot.chat;
 public class Messages {
 
     public static String MODEL_TEST_CASE_INTRO = "Ok, let's model a test case.";
+    public static String API_TEST_FAMILIARITY_QUESTION_TEXT = "Are you familiar with REST API testing?";
+    public static String ENTER_TEST_CASE_DESCRIPTION_TEXT = "How would you describe the test case? Please give me a few sentences about it.";
     public static String SELECT_PROJECT_FOR_TEST_CASE = "Which project should the test case be added to? Please enter a number:";
     public static String SELECT_MICROSERVICE_FOR_TEST_CASE = "Which microservice should the test case be added to? Please enter a number:";
     public static String ENTER_TEST_CASE_NAME = "Please enter a name for the test case:";
@@ -38,6 +40,7 @@ public class Messages {
     public static String ERROR_COULD_NOT_UNDERSTAND = "I could not understand that. Please try again.";
     public static String ERROR_COULD_NOT_UNDERSTAND_TYPE = "I could not understand that. Please enter a valid type.";
     public static String ERROR_BODY_NO_VALID_JSON = "Entered body is no valid JSON! Please try again.";
+    public static String ERROR_TEST_CASE_GENERATION = "Unfortunately I was not able to generate a test case based on your description. Please try again.";
 
     public static String TEST_ADD_TO_PROJECT(String projectName) {
         return "The test will be added to the project \"" + projectName + "\".";
