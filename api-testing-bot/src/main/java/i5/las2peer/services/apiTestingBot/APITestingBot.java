@@ -32,6 +32,8 @@ public class APITestingBot extends RESTService {
      */
     private String gitHubAppPrivateKey;
 
+    private String codexAPIToken;
+
     public APITestingBot() {
         setFieldValues();
     }
@@ -111,5 +113,9 @@ public class APITestingBot extends RESTService {
 
     public String getGitHubAppPrivateKey() {
         return gitHubAppPrivateKey;
+    }
+
+    public String getCodexAPIToken() {
+        return codexAPIToken;
     }
 }

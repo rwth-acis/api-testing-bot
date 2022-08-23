@@ -37,6 +37,7 @@ set_in_service_config botManagerURL ${BOT_MANAGER_URL}
 set_in_service_config caeBackendURL ${CAE_BACKEND_URL}
 set_in_service_config gitHubAppId ${GITHUB_APP_ID}
 set_in_service_config gitHubAppPrivateKey ${GITHUB_APP_PRIVATE_KEY}
+set_in_service_config codexAPIToken ${CODEX_API_TOKEN}
 
 
 # set defaults for optional service parameters
