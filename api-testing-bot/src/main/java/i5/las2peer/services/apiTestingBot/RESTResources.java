@@ -56,6 +56,7 @@ public class RESTResources {
 
         StringBuilder responseMessageSB = new StringBuilder();
         APITestingBot service = (APITestingBot) Context.get().getService();
+        String codexAPIToken = service.getCodexAPIToken();
 
         // setup message handler
         MessageHandler messageHandler;
@@ -66,6 +67,22 @@ public class RESTResources {
         do {
             if (initialState == INIT && intent.equals(Intent.MODEL_TEST)) {
                 handleNextState = messageHandler.handleInit(responseMessageSB, context);
+            }
+
+            if(handleNextState && context.getState() == API_TEST_FAMILIARITY_QUESTION) {
+                handleNextState = messageHandler.handleAPITestFamiliarityQuestion(responseMessageSB);
+            }
+
+            if(initialState == API_TEST_FAMILIARITY_QUESTION) {
+                handleNextState = messageHandler.handleAPITestFamiliarityQuestionAnswer(responseMessageSB, context, intent);
+            }
+
+            if(handleNextState && context.getState() == ENTER_TEST_CASE_DESCRIPTION) {
+                handleNextState = messageHandler.handleTestCaseDescriptionQuestion(responseMessageSB);
+            }
+
+            if(initialState == ENTER_TEST_CASE_DESCRIPTION) {
+                handleNextState = messageHandler.handleTestCaseDescription(responseMessageSB, context, message, codexAPIToken);
             }
 
             if (handleNextState && context.getState() == RC_SELECT_PROJECT) {

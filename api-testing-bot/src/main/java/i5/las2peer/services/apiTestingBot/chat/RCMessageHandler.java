@@ -1,5 +1,9 @@
 package i5.las2peer.services.apiTestingBot.chat;
 
+import i5.las2peer.apiTestModel.BodyAssertion;
+import i5.las2peer.apiTestModel.RequestAssertion;
+import i5.las2peer.apiTestModel.StatusCodeAssertion;
+import i5.las2peer.apiTestModel.TestRequest;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 import i5.las2peer.services.apiTestingBot.util.ProjectServiceHelper;
 import io.swagger.v3.oas.models.Operation;
@@ -15,8 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.getFirstUnsetPathParam;
-import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.handleNumberSelectionQuestion;
+import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.*;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.*;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.SELECT_PROJECT_FOR_TEST_CASE;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
@@ -32,18 +35,17 @@ public class RCMessageHandler extends MessageHandler {
         this.caeBackendURL = caeBackendURL;
     }
 
-    /**
-     * Reacts to the initial message of the user that starts a test modeling conversation.
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @return Whether the next state should be handled too.
-     */
     @Override
-    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
-        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
-        context.setState(RC_SELECT_PROJECT);
-        return true;
+    public boolean handleAPITestFamiliarityQuestionAnswer(StringBuilder responseMessageSB, TestModelingContext context, String intent) {
+        return handleYesNoQuestion(responseMessageSB, intent, () -> {
+            responseMessageSB.append(OK);
+            context.setState(ENTER_TEST_CASE_DESCRIPTION);
+            return true;
+        }, () -> {
+            responseMessageSB.append(OK);
+            context.setState(RC_SELECT_PROJECT);
+            return true;
+        });
     }
 
     /**
@@ -323,5 +325,34 @@ public class RCMessageHandler extends MessageHandler {
         }
 
         return false;
+    }
+
+    @Override
+    public String getTestDescription(TestRequest request) {
+        String description = "";
+        String url = getRequestUrlWithPathParamValues(request);
+        description += "Method & Path: `" + request.getType() + "` `" + url + "`\n";
+
+        // request auth info
+        String auth = request.getAgent() == -1 ? "None" : "User Agent";
+        description += "Authorization: " +  auth + "\n";
+
+        // request body (if exists)
+        if(request.getBody() != null && !request.getBody().isEmpty()) {
+            description += "Body:\n" + "`" + request.getBody() + "`\n";
+        }
+
+        // list assertions
+        description += "Assertions:\n";
+        for(RequestAssertion assertion : request.getAssertions()) {
+            description += "- ";
+            if(assertion instanceof StatusCodeAssertion) {
+                description += "Expected status code: " + ((StatusCodeAssertion) assertion).getStatusCodeValue();
+            } else {
+                description += ((BodyAssertion) assertion).getOperator().toString();
+            }
+            description += "\n";
+        }
+        return description;
     }
 }

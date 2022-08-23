@@ -6,6 +6,7 @@ import i5.las2peer.apiTestModel.StatusCodeAssertion;
 import i5.las2peer.apiTestModel.TestRequest;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 
+import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.handleYesNoQuestion;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.*;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
 
@@ -14,18 +15,17 @@ import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
  */
 public class GHMessageHandler extends MessageHandler {
 
-    /**
-     * Reacts to the initial message of the user that starts a test modeling conversation.
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @return Whether the next state should be handled too.
-     */
     @Override
-    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
-        responseMessageSB.append(MODEL_TEST_CASE_INTRO);
-        context.setState(NAME_TEST_CASE);
-        return true;
+    public boolean handleAPITestFamiliarityQuestionAnswer(StringBuilder responseMessageSB, TestModelingContext context, String intent) {
+        return handleYesNoQuestion(responseMessageSB, intent, () -> {
+            responseMessageSB.append(OK);
+            context.setState(ENTER_TEST_CASE_DESCRIPTION);
+            return true;
+        }, () -> {
+            responseMessageSB.append(OK);
+            context.setState(NAME_TEST_CASE);
+            return true;
+        });
     }
 
     /**
@@ -103,6 +103,12 @@ public class GHMessageHandler extends MessageHandler {
         context.setState(BODY_QUESTION);
         return true;
     }
+
+    @Override
+    public String getTestDescription(TestRequest request) {
+        return getGitHubTestDescription(request);
+    }
+
     public static String getGitHubTestDescription(TestRequest request) {
         String description = "";
         String url = getRequestUrlWithPathParamValues(request);
