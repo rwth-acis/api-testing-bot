@@ -1,5 +1,9 @@
 package i5.las2peer.services.apiTestingBot.chat;
 
+import i5.las2peer.apiTestModel.BodyAssertion;
+import i5.las2peer.apiTestModel.RequestAssertion;
+import i5.las2peer.apiTestModel.StatusCodeAssertion;
+import i5.las2peer.apiTestModel.TestRequest;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 
 import static i5.las2peer.services.apiTestingBot.chat.Messages.*;
@@ -98,5 +102,32 @@ public class GHMessageHandler extends MessageHandler {
         responseMessageSB.append(GH_REQUEST_INFO(context.getRequestMethod(), context.getRequestPath()));
         context.setState(BODY_QUESTION);
         return true;
+    }
+    public static String getGitHubTestDescription(TestRequest request) {
+        String description = "";
+        String url = getRequestUrlWithPathParamValues(request);
+        description += "**Method & Path:** `" + request.getType() + "` `" + url + "`\n";
+
+        // request auth info
+        String auth = request.getAgent() == -1 ? "None" : "User Agent";
+        description += "**Authorization:** " +  auth + "\n";
+
+        // request body (if exists)
+        if(request.getBody() != null && !request.getBody().isEmpty()) {
+            description += "**Body:**\n" + "```json" + request.getBody() + "```\n";
+        }
+
+        // list assertions
+        description += "**Assertions:**\n";
+        for(RequestAssertion assertion : request.getAssertions()) {
+            description += "- ";
+            if(assertion instanceof StatusCodeAssertion) {
+                description += "Expected status code: " + ((StatusCodeAssertion) assertion).getStatusCodeValue();
+            } else {
+                description += ((BodyAssertion) assertion).getOperator().toString();
+            }
+            description += "\n";
+        }
+        return description;
     }
 }

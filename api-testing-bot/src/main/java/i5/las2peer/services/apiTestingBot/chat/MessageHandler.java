@@ -26,6 +26,22 @@ public abstract class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public abstract boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context);
+    /**
+     * Returns the request url of the given test request where the path parameters are replaced with their values.
+     *
+     * @param request TestRequest
+     * @return Request url of the given test request where the path parameters are replaced with their values.
+     */
+    protected static String getRequestUrlWithPathParamValues(TestRequest request) {
+        String url = request.getUrl();
+        JSONObject pathParams = request.getPathParams();
+        for(Object key : pathParams.keySet()) {
+            String paramValue = String.valueOf(pathParams.get(key));
+            if(paramValue.isEmpty()) paramValue = "<Enter " + key + ">";
+            url = url.replace("{" + key + "}", paramValue);
+        }
+        return url;
+    }
 
     /**
      * Ask user to enter a name for the test case.
