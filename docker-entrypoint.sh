@@ -30,9 +30,6 @@ set_in_web_config httpsPort ${HTTPS_PORT}
 [[ -z "${BOT_MANAGER_URL}" ]] && \
     echo "Mandatory variable BOT_MANAGER_URL is not set. Add -e BOT_MANAGER_URL=... to your arguments." && exit 1
 
-[[ -z "${CAE_BACKEND_URL}" ]] && \
-    echo "Mandatory variable CAE_BACKEND_URL is not set. Add -e CAE_BACKEND_URL=... to your arguments." && exit 1
-
 set_in_service_config botManagerURL ${BOT_MANAGER_URL}
 set_in_service_config caeBackendURL ${CAE_BACKEND_URL}
 set_in_service_config gitHubAppId ${GITHUB_APP_ID}
