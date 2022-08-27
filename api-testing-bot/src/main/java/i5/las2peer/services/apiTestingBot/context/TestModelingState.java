@@ -6,39 +6,64 @@ public enum TestModelingState {
      */
     INIT,
 
-    /**
-     * This state is reached, if the user has entered a number to select a project that is linked to the current channel.
-     * This state is also reached, if the channel is only linked to one project and this project has been selected
-     * automatically.
-     * After a project has been selected, the microservices of the selected project are listed.
-     */
-    SELECT_PROJECT,
+    API_TEST_FAMILIARITY_QUESTION,
+
+    ENTER_TEST_CASE_DESCRIPTION,
 
     /**
-     * This state is reached, if the user has entered a number to select a microservice for which a test should be modeled.
-     * This state is also reached, if the selected project only contains one microservice and this one has been selected
-     * automatically.
-     * After a microservice has been selected, the user gets asked to enter a name for the test case.
+     * This state handles the selection of a CAE project (which must be linked to the current channel).
+     * In this state, the available projects are listed.
+     * If there is no project linked to the channel, modeling will be stopped.
+     * If there is only one project linked to the channel, it is chosen automatically.
+     * If there are multiple projects linked to the channel, the users can choose one of them.
      */
-    SELECT_MICROSERVICE,
+    RC_SELECT_PROJECT,
 
     /**
-     * In this state, the previously entered test case name gets stored in the context.
-     * Then, the user is asked to select a method (from OpenAPI doc) that should be tested.
+     * This state handles the selection of a microservice.
+     * In this state, the available microservices are listed.
+     * If there is no microservice in the project, modeling will be stopped.
+     * If there is only one microservice in the project, it is chosen automatically.
+     * If there are multiple microservices in the project, the users can choose one of them.
+     */
+    RC_SELECT_MICROSERVICE,
+
+    /**
+     * In this state the users are asked to enter a name for the test case.
+     * This state also handles the entered test case name and stores it in the context.
      */
     NAME_TEST_CASE,
 
     /**
-     * In this state is reached, if the user has entered a number to select the method that should be tested.
-     * After a method has been selected, state is switched to ENTER_PATH_PARAMS if operation contains path parameters,
-     * to state BODY_QUESTION otherwise.
+     * In this state, the user is asked to select a method (from OpenAPI doc) that should be tested.
+     * Also handles answer of user to this question.
      */
-    SELECT_METHOD,
+    RC_SELECT_METHOD,
 
     /**
      * State used to enter all path parameters.
      */
-    ENTER_PATH_PARAMS,
+    RC_ENTER_PATH_PARAMS,
+
+    /**
+     * In this state, the user gets asked to enter the request method.
+     */
+    GH_METHOD_QUESTION,
+
+    /**
+     * In this state, the user enters the request method.
+     */
+    GH_ENTER_METHOD,
+
+    /**
+     * In this state, the user gets asked to enter the request path.
+     */
+    GH_PATH_QUESTION,
+
+    /**
+     * In this state, the user enters the request path.
+     */
+    GH_ENTER_PATH,
 
     /**
      * In this state, the user gets asked whether the test request should contain a JSON body.

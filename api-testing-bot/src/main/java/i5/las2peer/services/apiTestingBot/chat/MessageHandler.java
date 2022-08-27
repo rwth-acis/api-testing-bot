@@ -1,177 +1,109 @@
 package i5.las2peer.services.apiTestingBot.chat;
 
-import i5.las2peer.apiTestModel.BodyAssertion;
-import i5.las2peer.apiTestModel.BodyAssertionOperator;
-import i5.las2peer.apiTestModel.RequestAssertion;
-import i5.las2peer.apiTestModel.StatusCodeAssertion;
+import i5.las2peer.apiTestModel.*;
+import i5.las2peer.services.apiTestingBot.codex.CodeToTestModel;
+import i5.las2peer.services.apiTestingBot.codex.CodexAPI;
+import i5.las2peer.services.apiTestingBot.codex.CodexTestGen;
 import i5.las2peer.services.apiTestingBot.context.BodyAssertionType;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
-import i5.las2peer.services.apiTestingBot.util.ProjectServiceHelper;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.parameters.PathParameter;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import static i5.las2peer.services.apiTestingBot.chat.MessageHandlerUtil.*;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.*;
 import static i5.las2peer.services.apiTestingBot.chat.Messages.ENTER_NUMBER;
 import static i5.las2peer.services.apiTestingBot.context.TestModelingState.*;
 
-public class MessageHandler {
-
-    private String caeBackendURL;
-
-    public MessageHandler(String caeBackendURL) {
-        this.caeBackendURL = caeBackendURL;
-    }
+public abstract class MessageHandler {
 
     /**
-     * Handles the initial message of the user that starts a test modeling conversation.
-     * Loads projects that are linked to the given channel.
-     * If there is no project linked to the channel, no test case can be modeled.
-     * If there is one project linked to the channel, chooses this project.
-     * If there are multiple projects linked to the channel, asks the user which one should be chosen.
+     * Reacts to the initial message of the user that starts a test modeling conversation.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
-     * @param channel           Current channel
      * @return Whether the next state should be handled too.
      */
-    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context, String channel) {
+    public boolean handleInit(StringBuilder responseMessageSB, TestModelingContext context) {
         responseMessageSB.append(MODEL_TEST_CASE_INTRO);
+        context.setState(API_TEST_FAMILIARITY_QUESTION);
+        return true;
+    }
 
-        // get projects that are linked to the channel
-        List<JSONObject> projectsLinkedToChannel = ProjectServiceHelper.getProjectsLinkedToChannel(channel);
-        context.setProjectsLinkedToChannel(projectsLinkedToChannel);
+    public boolean handleAPITestFamiliarityQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
+        responseMessageSB.append(API_TEST_FAMILIARITY_QUESTION_TEXT);
+        return false;
+    }
 
-        if (projectsLinkedToChannel.size() == 0) {
-            responseMessageSB.append("\n" + NO_PROJECT_LINKED_TO_CHANNEL);
-            context.setState(FINAL);
+    public abstract boolean handleAPITestFamiliarityQuestionAnswer(StringBuilder responseMessageSB, TestModelingContext context, String intent);
+
+    public boolean handleTestCaseDescriptionQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
+        responseMessageSB.append(ENTER_TEST_CASE_DESCRIPTION_TEXT);
+        return false;
+    }
+
+    public boolean handleTestCaseDescription(StringBuilder responseMessageSB, TestModelingContext context, String message,
+                                             String codexAPIToken) {
+        TestRequest generatedRequest = null;
+        try {
+            generatedRequest = new CodexTestGen(codexAPIToken).descriptionToTestModel(message);
+        } catch (CodexAPI.CodexAPIException | IOException e) {
+            e.printStackTrace();
             return false;
-        } else if (projectsLinkedToChannel.size() == 1) {
-            // there's only one project, use that
-            JSONObject project = projectsLinkedToChannel.get(0);
-            context.setProject(project);
-            context.nextState();
-            responseMessageSB.append(" " + TEST_ADD_TO_PROJECT((String) project.get("name")));
-            return true;
-        } else {
-            // there are multiple projects, need to select one
-            responseMessageSB.append(" " + SELECT_PROJECT_FOR_TEST_CASE);
-            int i = 1;
-            for (JSONObject project : projectsLinkedToChannel) {
-                String projectName = (String) project.get("name");
-                responseMessageSB.append("\n" + i + ". " + projectName);
-                i++;
-            }
-            context.nextState();
+        } catch (CodeToTestModel.CodeToTestModelException e) {
+            e.printStackTrace();
+            responseMessageSB.append(ERROR_TEST_CASE_GENERATION);
             return false;
         }
+        context.setRequestMethod(generatedRequest.getType());
+        context.setRequestPath(generatedRequest.getUrl());
+        context.setPathParamValues(generatedRequest.getPathParams());
+        context.setTestCaseName("TestCaseName");
+        context.setRequestBody(generatedRequest.getBody());
+        context.getAssertions().addAll(generatedRequest.getAssertions());
+        responseMessageSB.append(getTestDescription(generatedRequest));
+        context.setState(FINAL);
+        return false;
+    }
+
+    public abstract String getTestDescription(TestRequest request);
+
+    /**
+     * Returns the request url of the given test request where the path parameters are replaced with their values.
+     *
+     * @param request TestRequest
+     * @return Request url of the given test request where the path parameters are replaced with their values.
+     */
+    protected static String getRequestUrlWithPathParamValues(TestRequest request) {
+        String url = request.getUrl();
+        JSONObject pathParams = request.getPathParams();
+        for(Object key : pathParams.keySet()) {
+            String paramValue = String.valueOf(pathParams.get(key));
+            if(paramValue.isEmpty()) paramValue = "<Enter " + key + ">";
+            url = url.replace("{" + key + "}", paramValue);
+        }
+        return url;
     }
 
     /**
-     * If there are multiple projects linked to the current channel, then the project selection is handled first.
-     * After the project selection is done:
-     * If project contains no microservice, no test case can be modeled.
-     * If project contains one microservice, chooses this microservice.
-     * If project contains multiple microservices, asks the user which one should be chosen.
+     * Ask user to enter a name for the test case.
      *
      * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @param message           Message sent by the user.
      * @return Whether the next state should be handled too.
      */
-    public boolean handleProjectSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean handleNextState = false;
-        boolean error = false;
-
-        // check if no project is selected yet (e.g., if there were multiple projects linked to the channel and the
-        // user needed to select one of them)
-        if (context.getProject() == null) {
-            // user should have entered a number
-            List<JSONObject> projectsLinkedToChannel = context.getProjectsLinkedToChannel();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, projectsLinkedToChannel.size(), (num) -> {
-                // select this project
-                JSONObject selectedProject = projectsLinkedToChannel.get(num - 1);
-                context.setProject(selectedProject);
-                responseMessageSB.append(TEST_ADD_TO_PROJECT((String) selectedProject.get("name")));
-            });
-        }
-
-        // error might have occurred if user needed to enter a number to choose a project but input was invalid
-        if (!error) {
-            // get components of project
-            List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
-            if (microserviceComponents.size() == 0) {
-                responseMessageSB.append("\n" + NO_MICROSERVICE_IN_PROJECT);
-                context.setState(FINAL);
-            } else if (microserviceComponents.size() == 1) {
-                // there's only one microservice => use that
-                JSONObject component = microserviceComponents.get(0);
-                context.setMicroserviceComponent(component);
-                context.nextState();
-                handleNextState = true;
-                responseMessageSB.append(" " + TEST_ADD_TO_MICROSERVICE((String) component.get("name")));
-            } else {
-                // there are multiple microservices, need to select one
-                responseMessageSB.append(" " + SELECT_MICROSERVICE_FOR_TEST_CASE);
-                int i = 1;
-                for (JSONObject service : microserviceComponents) {
-                    String serviceName = (String) service.get("name");
-                    responseMessageSB.append("\n" + i + ". " + serviceName);
-                    i++;
-                }
-                context.nextState();
-            }
-        }
-        return handleNextState;
-    }
-
-    /**
-     * If there are multiple microservices in the selected project, then the microservice selection is handled first.
-     * After a microservice has been selected, the user gets asked to enter a name for the test case.
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @param message           Message sent by the user.
-     * @return Whether the next state should be handled too.
-     */
-    public boolean handleMicroserviceSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean error = false;
-
-        // check if no microservice is selected yet (e.g., if there were multiple services contained in the selected
-        // project and the user needed to select one of them)
-        if (context.getMicroserviceComponent() == null) {
-            // user should have entered a number
-            List<JSONObject> microserviceComponents = context.getMicroserviceComponentsOfProject();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, microserviceComponents.size(), (num) -> {
-                // select this microservice
-                JSONObject selectedService = microserviceComponents.get(num - 1);
-                context.setMicroserviceComponent(selectedService);
-                responseMessageSB.append(TEST_ADD_TO_MICROSERVICE((String) selectedService.get("name")));
-            });
-        }
-
-        // error might have occurred if user needed to enter a number to choose a microservice but input was invalid
-        if (!error) {
-            responseMessageSB.append(ENTER_TEST_CASE_NAME);
-            context.nextState();
-        }
+    public boolean handleTestCaseNameQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
+        responseMessageSB.append(ENTER_TEST_CASE_NAME);
         return false;
     }
 
     /**
-     * Stores the previously entered test case name to the context, then lists the methods (from OpenAPI doc) that
-     * can be tested and asks the user to choose one of them.
+     * Stores the previously entered test case name to the context.
      *
      * @param responseMessageSB StringBuilder
      * @param context           Current test modeling context
@@ -180,120 +112,8 @@ public class MessageHandler {
      */
     public boolean handleTestCaseName(StringBuilder responseMessageSB, TestModelingContext context, String message) {
         context.setTestCaseName(message);
-
-        // ask which method should be tested
-        responseMessageSB.append(TEST_CASE_NAME_INFO(message) + " " + SELECT_METHOD_TO_TEST);
-
-        // fetch OpenAPI doc of microservice from CAE
-        int versionedModelId = context.getComponentVersionedModelId();
-        HttpResponse<String> response = Unirest.get(caeBackendURL + "/docs/component/" + versionedModelId).asString();
-        if (!response.isSuccess()) {
-            responseMessageSB.append("\n" + ERROR_LOADING_AVAILABLE_METHODS);
-            context.setState(FINAL);
-            return false;
-        }
-
-        JSONObject body = (JSONObject) JSONValue.parse(response.getBody());
-        String openAPIDocStr = (String) body.get("docString");
-        context.setOpenAPI(openAPIDocStr);
-
-        // list available methods in chat
-        int i = 1;
-        List<Map.Entry<PathItem.HttpMethod, String>> availableMethods = new ArrayList<>();
-        for (Map.Entry<String, PathItem> entry : context.getOpenAPI().getPaths().entrySet()) {
-            String path = entry.getKey();
-            PathItem pathItem = entry.getValue();
-            for (Map.Entry<PathItem.HttpMethod, Operation> entry2 : pathItem.readOperationsMap().entrySet()) {
-                PathItem.HttpMethod method = entry2.getKey();
-                availableMethods.add(Map.entry(method, path));
-                responseMessageSB.append("\n" + i + ". " + method.name() + " " + path);
-                i++;
-            }
-        }
-        context.setAvailableMethods(availableMethods);
-
-        context.nextState();
-        return false;
-    }
-
-    /**
-     * Handles the selection of the method that should be tested.
-     * Then switches to state ENTER_PATH_PARAMS or BODY_QUESTION depending on whether the operation contains path
-     * parameters.
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @param message           Message sent by the user.
-     * @return Whether the next state should be handled too.
-     */
-    public boolean handleMethodSelection(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        boolean error = false;
-        if (context.getRequestMethod() == null) {
-            // user should have entered a number
-            List<Map.Entry<PathItem.HttpMethod, String>> availableMethods = context.getAvailableMethods();
-            error = handleNumberSelectionQuestion(responseMessageSB, message, availableMethods.size(), (num) -> {
-                // select this method
-                Map.Entry<PathItem.HttpMethod, String> selectedMethod = availableMethods.get(num - 1);
-                context.setRequestMethod(selectedMethod.getKey().name());
-                context.setRequestPath(selectedMethod.getValue());
-                responseMessageSB.append(TEST_METHOD_INFO(selectedMethod.getKey().name(), selectedMethod.getValue()));
-            });
-        }
-
-        // error might have occurred if user needed to enter a number to choose a method but input was invalid
-        if (!error) {
-            // check if there are path parameters
-            if (context.getPathParams().size() > 0) {
-                context.setState(ENTER_PATH_PARAMS);
-                responseMessageSB.append(SET_PATH_PARAM_VALUES);
-            } else {
-                // no path params
-                context.setState(BODY_QUESTION);
-                context.nextState();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * If user message contains path parameter value, it is stored to context.
-     * Then the user is asked to enter the value of the next path parameter (if there is any).
-     *
-     * @param responseMessageSB StringBuilder
-     * @param context           Current test modeling context
-     * @param message           Message sent by the user.
-     * @return Whether the next state should be handled too.
-     */
-    public boolean handlePathParams(StringBuilder responseMessageSB, TestModelingContext context, String message) {
-        // get first unset param
-        PathParameter unsetParam = getFirstUnsetPathParam(context);
-
-        if (context.getPathParamValues() != null) {
-            // last message should contain the value for a path parameter
-            responseMessageSB.append(PATH_PARAM_SET_INFO(unsetParam.getName(), message));
-            context.getPathParamValues().put(unsetParam.getName(), message);
-        } else {
-            context.setPathParamValues(new HashMap<>());
-        }
-
-        // check if there are still unset parameters
-        if (context.getPathParams().size() != context.getPathParamValues().size()) {
-            // update first unset parameter
-            unsetParam = getFirstUnsetPathParam(context);
-            responseMessageSB.append(ENTER_PATH_PARAM_VALUE(unsetParam.getName()));
-        } else {
-            // all params are set => replace params with their values in path
-            String path = context.getRequestPath();
-            for (Map.Entry<String, String> entry : context.getPathParamValues().entrySet()) {
-                path = path.replace("{" + entry.getKey() + "}", entry.getValue());
-            }
-            responseMessageSB.append(REQUEST_URL_INFO(path));
-            context.nextState();
-            return true;
-        }
-
-        return false;
+        responseMessageSB.append(TEST_CASE_NAME_INFO(message));
+        return true;
     }
 
     /**
@@ -303,6 +123,7 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleBodyQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(INCLUDE_REQUEST_BODY_QUESTION);
         return false;
     }
@@ -360,6 +181,7 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleAssertionsQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         responseMessageSB.append(INCLUDE_ASSERTIONS_QUESTION);
         return false;
     }
@@ -391,6 +213,7 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleAssertionTypeQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         appendLinesWithBreaks(responseMessageSB, SELECT_ASSERTION_TYPE, ASSERTION_TYPE_STATUS_CODE, ASSERTION_TYPE_RESPONSE_BODY);
         return false;
     }
@@ -473,7 +296,7 @@ public class MessageHandler {
                 responseMessageSB.append("\n- " + ((BodyAssertion) assertion).getOperator().toString());
             }
         }
-        responseMessageSB.append("\n");
+        responseMessageSB.append("\n\n");
         context.setState(ADD_ANOTHER_ASSERTION_QUESTION);
         return true;
     }
@@ -500,6 +323,7 @@ public class MessageHandler {
      * @return Whether the next state should be handled too.
      */
     public boolean handleBodyAssertionTypeQuestion(StringBuilder responseMessageSB) {
+        if(!responseMessageSB.isEmpty()) responseMessageSB.append(" ");
         appendLinesWithBreaks(responseMessageSB, SELECT_BODY_ASSERTION_TYPE, BODY_ASSERTION_TYPE_1,
                 BODY_ASSERTION_TYPE_2, BODY_ASSERTION_TYPE_3, BODY_ASSERTION_TYPE_4, BODY_ASSERTION_TYPE_5,
                 BODY_ASSERTION_TYPE_6);

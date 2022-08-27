@@ -1,8 +1,6 @@
 package i5.las2peer.services.apiTestingBot.context;
 
-import i5.las2peer.apiTestModel.BodyAssertion;
-import i5.las2peer.apiTestModel.BodyAssertionOperator;
-import i5.las2peer.apiTestModel.RequestAssertion;
+import i5.las2peer.apiTestModel.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -97,6 +95,10 @@ public class TestModelingContext {
         this.state = INIT;
     }
 
+    public String getTestCaseName() {
+        return testCaseName;
+    }
+
     public void setTestCaseName(String testCaseName) {
         this.testCaseName = testCaseName;
     }
@@ -119,26 +121,6 @@ public class TestModelingContext {
 
     public void setProject(JSONObject project) {
         this.project = project;
-    }
-
-    public void nextState() {
-        switch (this.state) {
-            case INIT:
-                this.state = SELECT_PROJECT;
-                break;
-            case SELECT_PROJECT:
-                this.state = SELECT_MICROSERVICE;
-                break;
-            case SELECT_MICROSERVICE:
-                this.state = NAME_TEST_CASE;
-                break;
-            case NAME_TEST_CASE:
-                this.state = SELECT_METHOD;
-                break;
-            case ENTER_PATH_PARAMS:
-                this.state = BODY_QUESTION;
-                break;
-        }
     }
 
     public void setState(TestModelingState state) {
@@ -249,5 +231,36 @@ public class TestModelingContext {
         JSONObject projectMetadata = (JSONObject) getProject().get("metadata");
         JSONArray components = (JSONArray) projectMetadata.get("components");
         return components.stream().filter(component -> ((JSONObject) component).get("type").equals("microservice")).toList();
+    }
+
+    public TestModel toTestModel() {
+        JSONObject pathParams = new JSONObject();
+        if(pathParamValues != null) {
+            for (Map.Entry<String, String> entry : pathParamValues.entrySet()) {
+                pathParams.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        int operatorId = 0;
+
+        // assertions need to have different ids
+        for(int i = 0; i < assertions.size(); i++) {
+            RequestAssertion a = assertions.get(i);
+            a.setId(i);
+
+            if(a instanceof BodyAssertion) {
+                BodyAssertion b = (BodyAssertion) a;
+                BodyAssertionOperator operator = b.getOperator();
+                while(operator != null) {
+                    operator.setId(operatorId);
+                    operatorId++;
+                    operator = operator.getFollowingOperator();
+                }
+            }
+        }
+
+        TestRequest request = new TestRequest(requestMethod, requestPath, pathParams, -1, requestBody, assertions);
+        TestCase testCase = new TestCase(testCaseName, List.of(request));
+        return new TestModel(List.of(testCase));
     }
 }

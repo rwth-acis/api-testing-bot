@@ -1,0 +1,592 @@
+{
+    "attributes": {
+        "label": {
+            "id": "modelAttributes[label]",
+            "name": "Label",
+            "value": {
+                "id": "modelAttributes[label]",
+                "name": "Label",
+                "value": "Model Attributes"
+            }
+        },
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0,
+        "zIndex": 0,
+        "type": "ModelAttributesNode",
+        "attributes": {}
+    },
+    "nodes": {
+        "f5c35598f04df4905a97c6db": {
+            "label": {
+                "id": "f5c35598f04df4905a97c6db[name]",
+                "name": "Name",
+                "value": {
+                    "id": "f5c35598f04df4905a97c6db[name]",
+                    "name": "Name",
+                    "value": "Gruppe1"
+                }
+            },
+            "left": 4337,
+            "top": 4193,
+            "width": 78,
+            "height": 70,
+            "zIndex": 16001,
+            "type": "Instance",
+            "attributes": {
+                "4bfaada53679f7e979bcc1e6": {
+                    "id": "f5c35598f04df4905a97c6db[name]",
+                    "name": "Name",
+                    "value": {
+                        "id": "f5c35598f04df4905a97c6db[name]",
+                        "name": "Name",
+                        "value": "Gruppe1"
+                    }
+                },
+                "a7c8d03fd57a143943da1f48": {
+                    "id": "f5c35598f04df4905a97c6db[address]",
+                    "name": "Address",
+                    "value": {
+                        "id": "f5c35598f04df4905a97c6db[address]",
+                        "name": "Address",
+                        "value": "REPLACE"
+                    }
+                },
+                "3640924305c3d50b3a2de10d": {
+                    "id": "f5c35598f04df4905a97c6db[environment separator]",
+                    "name": "Environment Separator",
+                    "value": {
+                        "id": "f5c35598f04df4905a97c6db[environment separator]",
+                        "name": "Environment Separator",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "960fcc299368c11690528afa": {
+            "label": {
+                "id": "960fcc299368c11690528afa[name]",
+                "name": "Name",
+                "value": {
+                    "id": "960fcc299368c11690528afa[name]",
+                    "name": "Name",
+                    "value": "CAEBot"
+                }
+            },
+            "left": 4333,
+            "top": 4368,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16002,
+            "type": "Bot",
+            "attributes": {
+                "80f33463988c54141b8c4dd8": {
+                    "id": "960fcc299368c11690528afa[name]",
+                    "name": "Name",
+                    "value": {
+                        "id": "960fcc299368c11690528afa[name]",
+                        "name": "Name",
+                        "value": "CAEBot"
+                    }
+                }
+            }
+        },
+        "d085128abaeecff90eb95376": {
+            "label": {
+                "id": "d085128abaeecff90eb95376[name]",
+                "name": "Name",
+                "value": {
+                    "id": "d085128abaeecff90eb95376[name]",
+                    "name": "Name",
+                    "value": "RocketChat"
+                }
+            },
+            "left": 4337,
+            "top": 4505,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16003,
+            "type": "Messenger",
+            "attributes": {
+                "646c1466c4bf34e8267c4f26": {
+                    "id": "d085128abaeecff90eb95376[messenger type]",
+                    "name": "Messenger Type",
+                    "value": {
+                        "id": "d085128abaeecff90eb95376[messenger type]",
+                        "name": "Messenger Type",
+                        "value": "Rocket.Chat"
+                    },
+                    "option": "Rocket.Chat"
+                },
+                "fac7a2b850919e041f655919": {
+                    "id": "d085128abaeecff90eb95376[name]",
+                    "name": "Name",
+                    "value": {
+                        "id": "d085128abaeecff90eb95376[name]",
+                        "name": "Name",
+                        "value": "RocketChat"
+                    }
+                },
+                "4d07dc2fa7f97c4ef5834078": {
+                    "id": "d085128abaeecff90eb95376[authentication token]",
+                    "name": "Authentication Token",
+                    "value": {
+                        "id": "d085128abaeecff90eb95376[authentication token]",
+                        "name": "Authentication Token",
+                        "value": "REPLACE:REPLACE:REPLACE"
+                    }
+                }
+            }
+        },
+        "35ee8db6359b29efee8bb915": {
+            "label": {
+                "id": "35ee8db6359b29efee8bb915[name]",
+                "name": "Name",
+                "value": {
+                    "id": "35ee8db6359b29efee8bb915[name]",
+                    "name": "Name",
+                    "value": "ChitChat"
+                }
+            },
+            "left": 4182,
+            "top": 4355,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16017,
+            "type": "NLU Knowledge",
+            "attributes": {
+                "dbcf8b46f8cd76f445b9dea4": {
+                    "id": "35ee8db6359b29efee8bb915[name]",
+                    "name": "Name",
+                    "value": {
+                        "id": "35ee8db6359b29efee8bb915[name]",
+                        "name": "Name",
+                        "value": "ChitChat"
+                    }
+                },
+                "19df132ba486480d8860a040": {
+                    "id": "35ee8db6359b29efee8bb915[id]",
+                    "name": "ID",
+                    "value": {
+                        "id": "35ee8db6359b29efee8bb915[id]",
+                        "name": "ID",
+                        "value": "0"
+                    }
+                },
+                "c051de6af456e91e52c0c465": {
+                    "id": "35ee8db6359b29efee8bb915[url]",
+                    "name": "URL",
+                    "value": {
+                        "id": "35ee8db6359b29efee8bb915[url]",
+                        "name": "URL",
+                        "value": "REPLACE"
+                    }
+                }
+            }
+        },
+        "93a28d3b3f1a6161f86fdc43": {
+            "label": {
+                "id": "93a28d3b3f1a6161f86fdc43[label]",
+                "name": "Label",
+                "value": {
+                    "id": "93a28d3b3f1a6161f86fdc43[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "left": 4523.090909090909,
+            "top": 4643.363636363636,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16018,
+            "type": "Incoming Message",
+            "attributes": {
+                "869849f65db9be737e99bd24": {
+                    "id": "93a28d3b3f1a6161f86fdc43[intent keyword]",
+                    "name": "Intent Keyword",
+                    "value": {
+                        "id": "93a28d3b3f1a6161f86fdc43[intent keyword]",
+                        "name": "Intent Keyword",
+                        "value": "modeltest"
+                    }
+                },
+                "e7d374a1e2d32c5e67bc68cc": {
+                    "id": "93a28d3b3f1a6161f86fdc43[nlu id]",
+                    "name": "NLU ID",
+                    "value": {
+                        "id": "93a28d3b3f1a6161f86fdc43[nlu id]",
+                        "name": "NLU ID",
+                        "value": "0"
+                    }
+                },
+                "3e8bfec67da28c354a969b46": {
+                    "id": "93a28d3b3f1a6161f86fdc43[isfile]",
+                    "name": "IsFile",
+                    "value": {
+                        "id": "93a28d3b3f1a6161f86fdc43[isfile]",
+                        "name": "IsFile",
+                        "value": false
+                    }
+                }
+            }
+        },
+        "7faf87ddbc68a728c06b569c": {
+            "label": {
+                "id": "7faf87ddbc68a728c06b569c[label]",
+                "name": "Label",
+                "value": {
+                    "id": "7faf87ddbc68a728c06b569c[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "left": 4791.363636363636,
+            "top": 4633.636363636363,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16019,
+            "type": "Chat Response",
+            "attributes": {
+                "a5844a8bde0637231a942b70": {
+                    "id": "7faf87ddbc68a728c06b569c[type]",
+                    "name": "Type",
+                    "value": {
+                        "id": "7faf87ddbc68a728c06b569c[type]",
+                        "name": "Type",
+                        "value": "Text"
+                    },
+                    "option": "Text"
+                },
+                "a5844a8bde0637231a942b69": {
+                    "id": "7faf87ddbc68a728c06b569c[message]",
+                    "name": "Message",
+                    "value": {
+                        "id": "7faf87ddbc68a728c06b569c[message]",
+                        "name": "Message",
+                        "value": ""
+                    }
+                },
+                "5f2b4ee11564428b5dc3fe28": {
+                    "id": "7faf87ddbc68a728c06b569c[fileurl]",
+                    "name": "FileURL",
+                    "value": {
+                        "id": "7faf87ddbc68a728c06b569c[fileurl]",
+                        "name": "FileURL",
+                        "value": ""
+                    }
+                },
+                "4c9be5afd81d19bdc0b219cb": {
+                    "id": "7faf87ddbc68a728c06b569c[errormessage]",
+                    "name": "ErrorMessage",
+                    "value": {
+                        "id": "7faf87ddbc68a728c06b569c[errormessage]",
+                        "name": "ErrorMessage",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "7880b4fef4cf16e8c8434f6e": {
+            "label": {
+                "id": "7880b4fef4cf16e8c8434f6e[label]",
+                "name": "Label",
+                "value": {
+                    "id": "7880b4fef4cf16e8c8434f6e[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "left": 4324,
+            "top": 4701,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16021,
+            "type": "Incoming Message",
+            "attributes": {
+                "869849f65db9be737e99bd24": {
+                    "id": "7880b4fef4cf16e8c8434f6e[intent keyword]",
+                    "name": "Intent Keyword",
+                    "value": {
+                        "id": "7880b4fef4cf16e8c8434f6e[intent keyword]",
+                        "name": "Intent Keyword",
+                        "value": "greeting"
+                    }
+                },
+                "e7d374a1e2d32c5e67bc68cc": {
+                    "id": "7880b4fef4cf16e8c8434f6e[nlu id]",
+                    "name": "NLU ID",
+                    "value": {
+                        "id": "7880b4fef4cf16e8c8434f6e[nlu id]",
+                        "name": "NLU ID",
+                        "value": "0"
+                    }
+                },
+                "3e8bfec67da28c354a969b46": {
+                    "id": "7880b4fef4cf16e8c8434f6e[isfile]",
+                    "name": "IsFile",
+                    "value": {
+                        "id": "7880b4fef4cf16e8c8434f6e[isfile]",
+                        "name": "IsFile",
+                        "value": false
+                    }
+                }
+            }
+        },
+        "ed09235ed6a7b186b7ccfa1c": {
+            "label": {
+                "id": "ed09235ed6a7b186b7ccfa1c[label]",
+                "name": "Label",
+                "value": {
+                    "id": "ed09235ed6a7b186b7ccfa1c[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "left": 4330,
+            "top": 4846,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16022,
+            "type": "Chat Response",
+            "attributes": {
+                "a5844a8bde0637231a942b70": {
+                    "id": "ed09235ed6a7b186b7ccfa1c[type]",
+                    "name": "Type",
+                    "value": {
+                        "id": "ed09235ed6a7b186b7ccfa1c[type]",
+                        "name": "Type",
+                        "value": "Text"
+                    },
+                    "option": "Text"
+                },
+                "a5844a8bde0637231a942b69": {
+                    "id": "ed09235ed6a7b186b7ccfa1c[message]",
+                    "name": "Message",
+                    "value": {
+                        "id": "ed09235ed6a7b186b7ccfa1c[message]",
+                        "name": "Message",
+                        "value": "Hello!"
+                    }
+                },
+                "5f2b4ee11564428b5dc3fe28": {
+                    "id": "ed09235ed6a7b186b7ccfa1c[fileurl]",
+                    "name": "FileURL",
+                    "value": {
+                        "id": "ed09235ed6a7b186b7ccfa1c[fileurl]",
+                        "name": "FileURL",
+                        "value": ""
+                    }
+                },
+                "4c9be5afd81d19bdc0b219cb": {
+                    "id": "ed09235ed6a7b186b7ccfa1c[errormessage]",
+                    "name": "ErrorMessage",
+                    "value": {
+                        "id": "ed09235ed6a7b186b7ccfa1c[errormessage]",
+                        "name": "ErrorMessage",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "896e7d33fe08685d2140820b": {
+            "label": {
+                "id": "896e7d33fe08685d2140820b[label]",
+                "name": "Label",
+                "value": {
+                    "id": "896e7d33fe08685d2140820b[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "left": 4750.888888888888,
+            "top": 4384.11111111111,
+            "width": 48,
+            "height": 48,
+            "zIndex": 16023,
+            "type": "Bot Action",
+            "attributes": {
+                "5529bde8544426cd5580efc1": {
+                    "id": "896e7d33fe08685d2140820b[action type]",
+                    "name": "Action Type",
+                    "value": {
+                        "id": "896e7d33fe08685d2140820b[action type]",
+                        "name": "Action Type",
+                        "value": "OpenAPI"
+                    },
+                    "option": "OpenAPI"
+                },
+                "c436dc0e764a63371820e857": {
+                    "id": "896e7d33fe08685d2140820b[function name]",
+                    "name": "Function Name",
+                    "value": {
+                        "id": "896e7d33fe08685d2140820b[function name]",
+                        "name": "Function Name",
+                        "value": "modelTest"
+                    }
+                },
+                "bc1335cdf59dedb856e635be": {
+                    "id": "896e7d33fe08685d2140820b[service alias]",
+                    "name": "Service Alias",
+                    "value": {
+                        "id": "896e7d33fe08685d2140820b[service alias]",
+                        "name": "Service Alias",
+                        "value": "REPLACE/apitestingbot"
+                    }
+                }
+            }
+        }
+    },
+    "edges": {
+        "6749057604ac51ade57ce02d": {
+            "label": {
+                "id": "6749057604ac51ade57ce02d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6749057604ac51ade57ce02d[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "f5c35598f04df4905a97c6db",
+            "target": "960fcc299368c11690528afa",
+            "attributes": {},
+            "type": "has"
+        },
+        "247dcb7b6fb157fa8008caef": {
+            "label": {
+                "id": "247dcb7b6fb157fa8008caef[label]",
+                "name": "Label",
+                "value": {
+                    "id": "247dcb7b6fb157fa8008caef[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "960fcc299368c11690528afa",
+            "target": "d085128abaeecff90eb95376",
+            "attributes": {},
+            "type": "has"
+        },
+        "c651a0490a0a0304ec0187e4": {
+            "label": {
+                "id": "c651a0490a0a0304ec0187e4[label]",
+                "name": "Label",
+                "value": {
+                    "id": "c651a0490a0a0304ec0187e4[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "960fcc299368c11690528afa",
+            "target": "35ee8db6359b29efee8bb915",
+            "attributes": {},
+            "type": "has"
+        },
+        "533587fc172ab4101b8f8f9e": {
+            "label": {
+                "id": "533587fc172ab4101b8f8f9e[label]",
+                "name": "Label",
+                "value": {
+                    "id": "533587fc172ab4101b8f8f9e[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "d085128abaeecff90eb95376",
+            "target": "93a28d3b3f1a6161f86fdc43",
+            "attributes": {},
+            "type": "generates"
+        },
+        "37d22b00461dd5b21d368438": {
+            "label": {
+                "id": "37d22b00461dd5b21d368438[label]",
+                "name": "Label",
+                "value": {
+                    "id": "37d22b00461dd5b21d368438[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "93a28d3b3f1a6161f86fdc43",
+            "target": "7faf87ddbc68a728c06b569c",
+            "attributes": {},
+            "type": "triggers"
+        },
+        "e5aafe7c93cd9b49e005e0be": {
+            "label": {
+                "id": "e5aafe7c93cd9b49e005e0be[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e5aafe7c93cd9b49e005e0be[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "d085128abaeecff90eb95376",
+            "target": "7880b4fef4cf16e8c8434f6e",
+            "attributes": {},
+            "type": "generates"
+        },
+        "beff8ee5683f09a48788c8da": {
+            "label": {
+                "id": "beff8ee5683f09a48788c8da[label]",
+                "name": "Label",
+                "value": {
+                    "id": "beff8ee5683f09a48788c8da[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "7880b4fef4cf16e8c8434f6e",
+            "target": "ed09235ed6a7b186b7ccfa1c",
+            "attributes": {},
+            "type": "triggers"
+        },
+        "8c3d6cb559183eec5a92e88d": {
+            "label": {
+                "id": "8c3d6cb559183eec5a92e88d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8c3d6cb559183eec5a92e88d[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "960fcc299368c11690528afa",
+            "target": "896e7d33fe08685d2140820b",
+            "attributes": {},
+            "type": "performs"
+        },
+        "8e6fcf689b08e95eee48c0e7": {
+            "label": {
+                "id": "8e6fcf689b08e95eee48c0e7[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8e6fcf689b08e95eee48c0e7[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "7faf87ddbc68a728c06b569c",
+            "target": "896e7d33fe08685d2140820b",
+            "attributes": {},
+            "type": "uses"
+        },
+        "79eb1974c66b784b374acd49": {
+            "label": {
+                "id": "79eb1974c66b784b374acd49[label]",
+                "name": "Label",
+                "value": {
+                    "id": "79eb1974c66b784b374acd49[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "896e7d33fe08685d2140820b",
+            "target": "d085128abaeecff90eb95376",
+            "attributes": {},
+            "type": "uses"
+        }
+    }
+}
