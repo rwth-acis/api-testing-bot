@@ -9,6 +9,7 @@ import i5.las2peer.services.apiTestingBot.chat.RCMessageHandler;
 import i5.las2peer.services.apiTestingBot.context.MessengerType;
 import i5.las2peer.services.apiTestingBot.context.TestModelingContext;
 import i5.las2peer.services.apiTestingBot.context.TestModelingState;
+import i5.las2peer.services.apiTestingBot.util.IssueTestModelingHelper;
 import i5.las2peer.services.apiTestingBot.util.PRTestGenHelper;
 import io.swagger.annotations.Api;
 import kong.unirest.Unirest;
@@ -193,8 +194,12 @@ public class RESTResources {
                 handleNextState = messageHandler.handleBodyAssertionTypeQuestion(responseMessageSB);
             }
 
-            if(initialState == BODY_ASSERTION_TYPE_QUESTION) {
+            if(initialState == BODY_ASSERTION_TYPE_QUESTION && !intent.equals(Intent.MODEL_TEST)) {
                 handleNextState = messageHandler.handleBodyAssertionTypeInput(responseMessageSB, context, message);
+            }
+
+            if(intent.equals(Intent.MODEL_TEST) && initialState == BODY_ASSERTION_TYPE_QUESTION) {
+                handleNextState = messageHandler.handleBodyAssertionTypeQuestion(responseMessageSB);
             }
 
             if(handleNextState && context.getState() == ENTER_BODY_ASSERTION_PART) {
@@ -325,10 +330,27 @@ public class RESTResources {
         APITestingBot service = (APITestingBot) Context.get().getService();
         if(service.getGitHubAppId() != gitHubAppId) return Response.status(HttpURLConnection.HTTP_INTERNAL_ERROR).build();
 
+        JSONObject jsonBody = (JSONObject) JSONValue.parse(body);
+
+        if(IssueTestModelingHelper.isRelevantIssueEvent(eventName, jsonBody)) {
+            boolean includeBodyAssertions = IssueTestModelingHelper.handleIssueEvent(jsonBody);
+
+            TestModelingContext context = APITestingBot.channelModelingContexts.get(IssueTestModelingHelper.getChannelName(jsonBody));
+            if(includeBodyAssertions) {
+                context.setState(TestModelingState.BODY_ASSERTION_TYPE_QUESTION);
+            } else {
+                context.setState(TestModelingState.FINAL);
+            }
+            
+            // manipulate body (for SBF)
+            JSONObject issue = (JSONObject) jsonBody.get("issue");
+            issue.put("body", "model test");
+            body = jsonBody.toJSONString();
+        }
+
         // redirect event to SBF
         this.redirectWebhookEventToSBF(gitHubAppId, eventName, body);
 
-        JSONObject jsonBody = (JSONObject) JSONValue.parse(body);
         if(PRTestGenHelper.isRelevantWorkflowEvent(eventName, jsonBody)) {
             PRTestGenHelper.handleWorkflowEvent(jsonBody, service.getBotManagerURL(), service.getGitHubAppId(),
                     service.getGitHubAppPrivateKey());
