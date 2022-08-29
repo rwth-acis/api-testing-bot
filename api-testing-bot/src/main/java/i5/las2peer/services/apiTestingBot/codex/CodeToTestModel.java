@@ -85,8 +85,8 @@ public class CodeToTestModel {
                 RequestAssertion statusCodeAssertion = getStatusCodeAssertion(secondArg);
                 if(statusCodeAssertion != null) assertions.add(statusCodeAssertion);
             } else if(firstArg.toString().equals("response")) {
-                RequestAssertion bodyAssertion = getBodyAssertion(secondArg);
-                if(bodyAssertion != null) assertions.add(bodyAssertion);
+                List<RequestAssertion> bodyAssertions = getBodyAssertions(secondArg);
+                if(bodyAssertions != null) assertions.addAll(bodyAssertions);
             }
         }
         return assertions;
@@ -100,14 +100,16 @@ public class CodeToTestModel {
         return null;
     }
 
-    private RequestAssertion getBodyAssertion(Expression arg) throws CodeToTestModelException {
+    private List<RequestAssertion> getBodyAssertions(Expression arg) throws CodeToTestModelException {
         Expression current = arg;
+        Expression untilCurrent = null;
         BodyAssertionOperator operator = null;
         while(current != null) {
             if(!current.isMethodCallExpr()) break;
             List<Node> childNodes = current.getChildNodes();
 
             BodyAssertionOperator followingOperator = null;
+            Expression currentWithoutFollowing = null;
 
             String methodName = current.asMethodCallExpr().getName().asString();
             if(methodName.equals("isA")) {
@@ -123,6 +125,8 @@ public class CodeToTestModel {
                 // continue with first argument of asJSONObject or asJSONObjectList
                 if(childNodes.size() > 1) current = (Expression) childNodes.get(1);
                 else current = null;
+
+                currentWithoutFollowing = new MethodCallExpr(methodName);
             } else if(methodName.equals("everyItem")) {
                 if(childNodes.size() == 2) {
                     followingOperator = new BodyAssertionOperator(3, 0);
@@ -130,6 +134,7 @@ public class CodeToTestModel {
                 } else {
                     throw new CodeToTestModelException("Error: everyItem has more/less than 1 argument");
                 }
+                currentWithoutFollowing = new MethodCallExpr(methodName);
             } else if(methodName.equals("hasField")) {
                 Node hasFieldFirstArg = childNodes.get(1);
 
@@ -139,15 +144,26 @@ public class CodeToTestModel {
                     if(childNodes.size() > 2) {
                         Node hasFieldSecondArg = childNodes.get(2);
                         current = (Expression) hasFieldSecondArg;
+                        currentWithoutFollowing = new MethodCallExpr(methodName, (StringLiteralExpr) hasFieldFirstArg);
                     } else {
                         current = null;
                     }
                 } else {
                     throw new CodeToTestModelException("Error, hasField first arg is not StringLiteralExpr");
                 }
+            } else if(methodName.equals("allOf")) {
+                List<RequestAssertion> assertions = new ArrayList<>();
+                for(int i = 1; i < childNodes.size(); i++) {
+                    Expression untilCurrentClone = appendExpression(untilCurrent, (Expression) childNodes.get(i));
+                    assertions.addAll(getBodyAssertions(untilCurrentClone));
+                }
+                return assertions;
             } else {
                 throw new CodeToTestModelException("methodName " + methodName + " unsupported here!");
             }
+
+            if(untilCurrent == null) untilCurrent = currentWithoutFollowing;
+            else if(currentWithoutFollowing != null) untilCurrent = appendExpression(untilCurrent, currentWithoutFollowing);
 
             if(operator == null) {
                 operator = followingOperator;
@@ -158,8 +174,33 @@ public class CodeToTestModel {
             }
         }
 
-        if(operator != null) return new BodyAssertion(operator);
+        if(operator != null) return List.of(new BodyAssertion(operator));
         return null;
+    }
+
+    private static Expression appendExpression(Expression exp, Expression expToAppend) {
+        Expression expClone = exp.clone();
+        Expression expToAppendClone = expToAppend.clone();
+
+        Expression end = expClone;
+        while(end instanceof MethodCallExpr) {
+            if(end.asMethodCallExpr().getArguments().size() == 0) {
+                // end has no arguments => append expression
+                end.asMethodCallExpr().addArgument(expToAppendClone);
+                break;
+            } else {
+                // end still has arguments
+                // get last argument
+                Expression lastArg = end.asMethodCallExpr().getArguments().get(end.asMethodCallExpr().getArguments().size()-1);
+                if (lastArg instanceof MethodCallExpr) {
+                    end = lastArg;
+                } else {
+                    end.asMethodCallExpr().addArgument(expToAppendClone);
+                    break;
+                }
+            }
+        }
+        return expClone;
     }
 
     private static int classNameToInputType(String className) {
