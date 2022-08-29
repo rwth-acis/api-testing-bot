@@ -60,7 +60,12 @@ public class CodexTestGen {
             updatedContent = insert(updatedContent, ";");
 
             // get body assertions from current request model
-            List<BodyAssertion> bodyAssertions = getBodyAssertionsFromCode(updatedContent);
+            List<BodyAssertion> bodyAssertions = new ArrayList<>();
+            try {
+                bodyAssertions = getBodyAssertionsFromCode(updatedContent);
+            } catch (CodeToTestModel.CodeToTestModelException e) {
+                break;
+            }
             if(bodyAssertions.isEmpty()) continue;
 
             // get newest assertion
