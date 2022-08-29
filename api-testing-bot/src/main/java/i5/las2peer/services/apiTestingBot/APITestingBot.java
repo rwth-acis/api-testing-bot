@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Api
 @ServicePath("/apitestingbot")
@@ -41,6 +42,14 @@ public class APITestingBot extends RESTService {
     @Override
     protected void initResources() {
         getResourceConfig().register(RESTResources.class);
+    }
+
+    @Override
+    public Map<String, String> getCustomMessageDescriptions() {
+        Map<String, String> descriptions = new HashMap<>();
+        descriptions.put("SERVICE_CUSTOM_MESSAGE_1", "Webhook call to the SBF.");
+        descriptions.put("SERVICE_CUSTOM_ERROR_1", "CodeToTestModelException");
+        return descriptions;
     }
 
     /**

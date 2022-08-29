@@ -9,6 +9,8 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.apiTestModel.*;
 import org.json.simple.JSONObject;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static i5.las2peer.services.apiTestingBot.codex.CodexTestGen.BASE_PROMPT_CLASS_NAME;
 import static i5.las2peer.services.apiTestingBot.codex.CodexTestGen.BASE_PROMPT_METHOD_NAME;
@@ -53,7 +56,18 @@ public class CodeToTestModel {
         List<MethodCallExpr> assertThatExprs = methodCallExprs.stream()
                 .filter(exp -> exp.getName().asString().equals("assertThat")).toList();
 
-        List<RequestAssertion> assertions = getAssertions(assertThatExprs);
+        List<RequestAssertion> assertions = null;
+        try {
+            assertions = getAssertions(assertThatExprs);
+        } catch (CodeToTestModelException e) {
+            JSONObject error = new JSONObject();
+            error.put("exception", "CodeToTestModelException");
+            error.put("message", e.getMessage());
+            String assertionsStr = assertThatExprs.stream().map(exp -> exp.toString()).collect(Collectors.joining(", "));
+            error.put("codexGeneratedAssertions", assertionsStr);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_CUSTOM_ERROR_1, error.toJSONString());
+            throw e;
+        }
 
         return new TestRequest(requestMethod, requestPath, pathParameters, -1, body, assertions);
     }
