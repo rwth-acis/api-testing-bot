@@ -70,6 +70,11 @@ public class CodexTestGen {
                 break;
             }
 
+            if(isDuplicate(latest, bodyAssertions.subList(0, bodyAssertions.size()-1))) {
+                // stop code generation here
+                break;
+            }
+
             code = updatedContent;
         }
 
@@ -92,6 +97,13 @@ public class CodexTestGen {
                 }
             }
             operator = operator.getFollowingOperator();
+        }
+        return false;
+    }
+
+    private static boolean isDuplicate(BodyAssertion latest, List<BodyAssertion> previousAssertions) {
+        for(BodyAssertion a : previousAssertions) {
+            if(latest.getOperator().toString().equals(a.getOperator().toString())) return true;
         }
         return false;
     }
