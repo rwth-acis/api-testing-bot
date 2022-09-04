@@ -2,6 +2,7 @@ package i5.las2peer.services.apiTestingBot.util;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import org.openapitools.openapidiff.core.model.ChangedMetadata;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
@@ -49,12 +50,22 @@ public class RocketChatRender extends MarkdownRender {
         String path = endpoint.getPathUrl();
         String summary = endpoint.getSummary();
 
-        String text = "*- " + CODE + method + CODE + " " + path + "*";
+        String text = "*- *" + CODE + method + CODE + " *" + path + "*";
         if(metadata(summary) != null && !metadata(summary).isEmpty()) text += "\n" + metadata(summary);
         text += "\n";
 
         // include yaml code from OpenAPI document
-        text += "```" + Yaml.pretty(openAPI.getPaths().get(path).readOperationsMap().get(PathItem.HttpMethod.valueOf(method))) + "```";
+        Operation o = openAPI.getPaths().get(path).readOperationsMap().get(PathItem.HttpMethod.valueOf(method));
+        // remove some fields
+        o.getParameters().forEach(param -> param.setStyle(null));
+        o.getParameters().forEach(param -> param.explode(null));
+        o.getParameters().forEach(param -> {
+            if(param.getDescription().isEmpty()) param.setDescription(null);
+        });
+        o.getResponses().forEach((code, response) -> {
+            if(response.getDescription().isEmpty()) response.setDescription(null);
+        });
+        text += "```\n" + Yaml.pretty(o) + "```";
 
         return text;
     }
