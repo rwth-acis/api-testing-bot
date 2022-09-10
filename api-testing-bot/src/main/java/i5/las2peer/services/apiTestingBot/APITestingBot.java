@@ -66,6 +66,7 @@ public class APITestingBot extends RESTService {
         if (OpenAPIUtils.docUnchanged(openAPIDocOld, openAPIDocUpdated)) return;
 
         String message = OpenAPIUtils.getDiffDescriptionMessage(openAPIDocOld, openAPIDocUpdated, messenger);
+        message += "\n" + "You can use the @CAE bot to model an API test case in chat. Just let @CAE know if you want to model a test.";
 
         // create monitoring message that triggers a webhook call to the SBF
         // this will trigger a chat message
