@@ -56,16 +56,22 @@ public class RocketChatRender extends MarkdownRender {
 
         // include yaml code from OpenAPI document
         Operation o = openAPI.getPaths().get(path).readOperationsMap().get(PathItem.HttpMethod.valueOf(method));
-        // remove some fields
-        o.getParameters().forEach(param -> param.setStyle(null));
-        o.getParameters().forEach(param -> param.explode(null));
-        o.getParameters().forEach(param -> {
-            if(param.getDescription().isEmpty()) param.setDescription(null);
-        });
-        o.getResponses().forEach((code, response) -> {
-            if(response.getDescription().isEmpty()) response.setDescription(null);
-        });
-        text += "```\n" + Yaml.pretty(o) + "```";
+        if(o != null) {
+            // remove some fields
+            if(o.getParameters() != null) {
+                o.getParameters().forEach(param -> param.setStyle(null));
+                o.getParameters().forEach(param -> param.explode(null));
+                o.getParameters().forEach(param -> {
+                    if (param.getDescription().isEmpty()) param.setDescription(null);
+                });
+            }
+            if(o.getResponses() != null) {
+                o.getResponses().forEach((code, response) -> {
+                    if (response.getDescription().isEmpty()) response.setDescription(null);
+                });
+            }
+            text += "```\n" + Yaml.pretty(o) + "```";
+        }
 
         return text;
     }
