@@ -78,7 +78,7 @@ public class RocketChatRender extends MarkdownRender {
 
     @Override
     protected String itemEndpoint(String method, String path, ChangedMetadata summary) {
-        String text = "*- " + CODE + method + CODE + " " + path + "*";
+        String text = "*- *" + CODE + method + CODE + " *" + path + "*";
 
         // append summary (if exists)
         String metadata = metadata("summary", summary);
