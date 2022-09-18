@@ -21,7 +21,7 @@ public class ProjectServiceHelper {
             for(JSONObject project : projectsWithLinkedChat) {
                 JSONObject chatInfo = (JSONObject) project.get("chatInfo");
                 String type = (String) chatInfo.get("type");
-                if(type.equals("RocketChat")) {
+                if(type != null && type.equals("RocketChat")) {
                     String projectChannelId = (String) chatInfo.get("channelId");
                     if(projectChannelId.equals(channel)) {
                         projectsLinkedToChannel.add(project);
