@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Api
 @ServicePath("/apitestingbot")
@@ -43,6 +44,14 @@ public class APITestingBot extends RESTService {
         getResourceConfig().register(RESTResources.class);
     }
 
+    @Override
+    public Map<String, String> getCustomMessageDescriptions() {
+        Map<String, String> descriptions = new HashMap<>();
+        descriptions.put("SERVICE_CUSTOM_MESSAGE_1", "Webhook call to the SBF.");
+        descriptions.put("SERVICE_CUSTOM_ERROR_1", "CodeToTestModelException");
+        return descriptions;
+    }
+
     /**
      * Sends a chat message describing the changes between the two given OpenAPI documents.
      * @param openAPIDocOld Old OpenAPI document.
@@ -57,6 +66,7 @@ public class APITestingBot extends RESTService {
         if (OpenAPIUtils.docUnchanged(openAPIDocOld, openAPIDocUpdated)) return;
 
         String message = OpenAPIUtils.getDiffDescriptionMessage(openAPIDocOld, openAPIDocUpdated, messenger);
+        message += "\n" + "You can use the @CAE bot to model an API test case in chat. Just let @CAE know if you want to model a test.";
 
         // create monitoring message that triggers a webhook call to the SBF
         // this will trigger a chat message

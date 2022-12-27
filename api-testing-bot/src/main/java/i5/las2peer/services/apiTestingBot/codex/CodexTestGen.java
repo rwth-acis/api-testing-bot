@@ -60,12 +60,22 @@ public class CodexTestGen {
             updatedContent = insert(updatedContent, ";");
 
             // get body assertions from current request model
-            List<BodyAssertion> bodyAssertions = getBodyAssertionsFromCode(updatedContent);
+            List<BodyAssertion> bodyAssertions = new ArrayList<>();
+            try {
+                bodyAssertions = getBodyAssertionsFromCode(updatedContent);
+            } catch (CodeToTestModel.CodeToTestModelException e) {
+                break;
+            }
             if(bodyAssertions.isEmpty()) continue;
 
             // get newest assertion
             BodyAssertion latest = bodyAssertions.get(bodyAssertions.size()-1);
             if(containsIrrelevantHasFieldAssertion(latest, testCaseDescription)) {
+                // stop code generation here
+                break;
+            }
+
+            if(isDuplicate(latest, bodyAssertions.subList(0, bodyAssertions.size()-1))) {
                 // stop code generation here
                 break;
             }
@@ -92,6 +102,13 @@ public class CodexTestGen {
                 }
             }
             operator = operator.getFollowingOperator();
+        }
+        return false;
+    }
+
+    private static boolean isDuplicate(BodyAssertion latest, List<BodyAssertion> previousAssertions) {
+        for(BodyAssertion a : previousAssertions) {
+            if(latest.getOperator().toString().equals(a.getOperator().toString())) return true;
         }
         return false;
     }

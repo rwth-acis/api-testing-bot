@@ -25,17 +25,17 @@ dependencies {
     // compileOnly will be moved into the lib dir afterwards
     compileOnly "i5:las2peer-bundle:${project.property('core.version')}"
 
-    implementation "org.openapitools.openapidiff:openapi-diff-core:2.1.0-beta.3"
+    implementation "org.openapitools.openapidiff:openapi-diff-core:2.1.0-beta.4"
     implementation "com.googlecode.json-simple:json-simple:1.1.1"
-    implementation "com.konghq:unirest-java:3.13.11"
+    implementation "com.konghq:unirest-java:3.14.1"
     implementation "i5:las2peer-api-test-model:1.0.0"
 
     // GitHub API
-    implementation "org.kohsuke:github-api:1.308"
+    implementation "org.kohsuke:github-api:1.313"
     implementation "io.jsonwebtoken:jjwt-impl:0.11.5"
     implementation "io.jsonwebtoken:jjwt-jackson:0.11.5"
 
-    implementation "com.github.javaparser:javaparser-core:3.24.4"
+    implementation "com.github.javaparser:javaparser-core:3.24.9"
 }
 
 configurations {
