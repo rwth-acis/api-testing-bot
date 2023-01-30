@@ -32,6 +32,8 @@ public class CodexTestGen {
 
     public TestRequest descriptionToTestModel(String testCaseDescription) throws CodexAPI.CodexAPIException, IOException, CodeToTestModel.CodeToTestModelException {
         String testCode = descriptionToCode(testCaseDescription);
+        System.out.println("testCode:");
+        System.out.println(testCode);
         return new CodeToTestModel().convert(testCode);
     }
 
