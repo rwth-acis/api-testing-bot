@@ -10,6 +10,8 @@ import i5.las2peer.apiTestModel.BodyAssertion;
 import i5.las2peer.apiTestModel.BodyAssertionOperator;
 import i5.las2peer.apiTestModel.RequestAssertion;
 import i5.las2peer.apiTestModel.TestRequest;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -34,6 +36,7 @@ public class CodexTestGen {
         String testCode = descriptionToCode(testCaseDescription);
         System.out.println("testCode:");
         System.out.println(testCode);
+        Context.get().monitorEvent(MonitoringEvent.SERVICE_CUSTOM_ERROR_1, testCode);
         return new CodeToTestModel().convert(testCode);
     }
 
