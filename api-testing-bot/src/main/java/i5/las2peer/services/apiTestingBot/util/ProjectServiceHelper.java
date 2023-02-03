@@ -23,7 +23,7 @@ public class ProjectServiceHelper {
                 String type = (String) chatInfo.get("type");
                 if(type != null && type.equals("RocketChat")) {
                     String projectChannelId = (String) chatInfo.get("channelId");
-                    if(projectChannelId.equals(channel)) {
+                    if(projectChannelId != null && projectChannelId.equals(channel)) {
                         projectsLinkedToChannel.add(project);
                     }
                 }
