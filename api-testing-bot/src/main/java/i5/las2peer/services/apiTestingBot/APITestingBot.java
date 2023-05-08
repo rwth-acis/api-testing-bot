@@ -42,6 +42,7 @@ public class APITestingBot extends RESTService {
 
     @Override
     protected void initResources() {
+        getResourceConfig().register(this);
         getResourceConfig().register(RESTResources.class);
     }
 
