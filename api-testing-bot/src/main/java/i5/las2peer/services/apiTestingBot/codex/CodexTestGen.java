@@ -31,7 +31,7 @@ public class CodexTestGen {
 
     public CodexTestGen(String codexAPIToken, String model) {
         this.codexAPIToken = codexAPIToken;
-        this.codexAPIToken = model;
+        this.openAIModel = model;
     }
 
     public TestRequest descriptionToTestModel(String testCaseDescription) throws CodexAPI.CodexAPIException, IOException, CodeToTestModel.CodeToTestModelException {
