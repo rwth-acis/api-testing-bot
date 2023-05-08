@@ -16,14 +16,15 @@ public class CodexAPI {
     }
 
     private static final String COMPLETIONS_ENDPOINT = "https://api.openai.com/v1/completions";
-    private static final String MODEL_NAME = "code-davinci-002";
+    private String MODEL_NAME = "text-davinci-003";
     private static final double TEMPERATURE = 0.2;
     private static final int MAX_TOKENS = 100;
 
     private String apiToken;
 
-    public CodexAPI(String apiToken) {
+    public CodexAPI(String apiToken, String model) {
         this.apiToken = apiToken;
+        this.MODEL_NAME = model;
     }
 
     public JSONArray insert(String prompt, String suffix, String stop) throws CodexAPIException {

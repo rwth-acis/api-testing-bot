@@ -34,6 +34,7 @@ public class APITestingBot extends RESTService {
     private String gitHubAppPrivateKey;
 
     private String codexAPIToken;
+    private String openAIModel;
 
     public APITestingBot() {
         setFieldValues();

@@ -21,6 +21,7 @@ archiva_credentials.xml
 .classpath
 .project
 .settings
+*.class
 
 # Ignore Gradle project-specific cache directory
 .gradle
