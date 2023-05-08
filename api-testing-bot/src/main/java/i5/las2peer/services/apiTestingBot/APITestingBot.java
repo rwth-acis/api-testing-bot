@@ -129,4 +129,8 @@ public class APITestingBot extends RESTService {
     public String getCodexAPIToken() {
         return codexAPIToken;
     }
+
+    public String getOpenAIModel() {
+        return openAIModel;
+    }
 }

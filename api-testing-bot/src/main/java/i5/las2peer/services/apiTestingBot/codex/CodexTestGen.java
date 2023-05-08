@@ -27,9 +27,11 @@ public class CodexTestGen {
     public static final String BASE_PROMPT_METHOD_NAME = "test";
 
     private String codexAPIToken;
+    private String openAIModel;
 
-    public CodexTestGen(String codexAPIToken) {
+    public CodexTestGen(String codexAPIToken, String model) {
         this.codexAPIToken = codexAPIToken;
+        this.codexAPIToken = model;
     }
 
     public TestRequest descriptionToTestModel(String testCaseDescription) throws CodexAPI.CodexAPIException, IOException, CodeToTestModel.CodeToTestModelException {
@@ -174,7 +176,7 @@ public class CodexTestGen {
         String suffix = code.split("\\[insert]")[1];
 
         // call OpenAI API
-        JSONArray choices = new CodexAPI(codexAPIToken).insert(prompt, suffix, stop);
+        JSONArray choices = new CodexAPI(codexAPIToken,openAIModel).insert(prompt, suffix, stop);
 
         // get first choice
         JSONObject choice = (JSONObject) choices.get(0);

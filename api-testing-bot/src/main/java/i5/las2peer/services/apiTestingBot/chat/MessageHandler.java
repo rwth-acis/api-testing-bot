@@ -48,10 +48,10 @@ public abstract class MessageHandler {
     }
 
     public boolean handleTestCaseDescription(StringBuilder responseMessageSB, TestModelingContext context, String message,
-                                             String codexAPIToken) {
+                                             String codexAPIToken, String openAIModel) {
         TestRequest generatedRequest = null;
         try {
-            generatedRequest = new CodexTestGen(codexAPIToken).descriptionToTestModel(message);
+            generatedRequest = new CodexTestGen(codexAPIToken, openAIModel).descriptionToTestModel(message);
         } catch (CodexAPI.CodexAPIException | IOException e) {
             e.printStackTrace();
             return false;
