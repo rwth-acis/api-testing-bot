@@ -25,7 +25,7 @@ dependencies {
     // compileOnly will be moved into the lib dir afterwards
     compileOnly "i5:las2peer-bundle:${project.property('core.version')}"
 
-    implementation "org.openapitools.openapidiff:openapi-diff-core:2.1.0-beta.4"
+    implementation "org.openapitools.openapidiff:openapi-diff-core:2.1.0-beta.6"
     implementation "com.googlecode.json-simple:json-simple:1.1.1"
     implementation "com.konghq:unirest-java:3.14.2"
     implementation "i5:las2peer-api-test-model:1.0.0"
