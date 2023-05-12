@@ -15,8 +15,8 @@ public class CodexAPI {
         }
     }
 
-    private static final String COMPLETIONS_ENDPOINT = "https://api.openai.com/v1/edits";
-    private String MODEL_NAME = "code-davinci-edit-001";
+    private static final String COMPLETIONS_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+    private String MODEL_NAME = "gpt-3.5-turbo";
     private static final double TEMPERATURE = 0.2;
     private static final int MAX_TOKENS = 100;
 
@@ -27,14 +27,25 @@ public class CodexAPI {
         this.MODEL_NAME = model;
     }
 
-    public JSONArray insert(String input, String instruction) throws CodexAPIException {
+    public JSONArray insert(String input, String stop) throws CodexAPIException {
         JSONObject body = new JSONObject();
+        JSONArray messages = new JSONArray();
+        JSONObject systemMessage = new JSONObject();
+        systemMessage.put("role","system");
+        systemMessage.put("content","You are an assistant that just provides code for restful services.");
+        messages.add(systemMessage);
+        JSONObject userMessage = new JSONObject();
+
+        userMessage.put("role","user");
+        userMessage.put("content",input);
+        messages.add(userMessage);
+
         body.put("model", MODEL_NAME);
-        body.put("input", input);
+        body.put("messages", messages);
         //body.put("suffix", suffix);
-        body.put("instruction",instruction);
+        body.put("stop",stop);
         body.put("temperature", TEMPERATURE);
-        //body.put("max_tokens", MAX_TOKENS);
+        body.put("max_tokens", MAX_TOKENS);
         body.put("n", 1);
         //body.put("stop", stop);
 
