@@ -15,8 +15,8 @@ public class CodexAPI {
         }
     }
 
-    private static final String COMPLETIONS_ENDPOINT = "https://api.openai.com/v1/completions";
-    private String MODEL_NAME = "text-davinci-003";
+    private static final String COMPLETIONS_ENDPOINT = "https://api.openai.com/v1/edits";
+    private String MODEL_NAME = "code-davinci-edit-001";
     private static final double TEMPERATURE = 0.2;
     private static final int MAX_TOKENS = 100;
 
@@ -27,15 +27,16 @@ public class CodexAPI {
         this.MODEL_NAME = model;
     }
 
-    public JSONArray insert(String prompt, String suffix, String stop) throws CodexAPIException {
+    public JSONArray insert(String input, String instruction) throws CodexAPIException {
         JSONObject body = new JSONObject();
         body.put("model", MODEL_NAME);
-        body.put("prompt", prompt);
-        body.put("suffix", suffix);
+        body.put("input", input);
+        //body.put("suffix", suffix);
+        body.put("instruction",instruction)
         body.put("temperature", TEMPERATURE);
-        body.put("max_tokens", MAX_TOKENS);
+        //body.put("max_tokens", MAX_TOKENS);
         body.put("n", 1);
-        body.put("stop", stop);
+        //body.put("stop", stop);
 
         HttpResponse<String> res = Unirest.post(COMPLETIONS_ENDPOINT)
                 .basicAuth("", apiToken)
