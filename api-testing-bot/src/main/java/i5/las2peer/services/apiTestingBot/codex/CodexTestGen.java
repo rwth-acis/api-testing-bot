@@ -26,7 +26,7 @@ public class CodexTestGen {
     public static final String BASE_PROMPT_CLASS_NAME = "Test";
     public static final String BASE_PROMPT_METHOD_NAME = "test";
 
-    public String instruction "Replace [insert] with fitting code";
+    public String instruction = "Replace [insert] with fitting code";
 
     private String codexAPIToken;
     private String openAIModel;
