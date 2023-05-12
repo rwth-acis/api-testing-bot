@@ -32,7 +32,7 @@ public class CodexAPI {
         JSONArray messages = new JSONArray();
         JSONObject systemMessage = new JSONObject();
         systemMessage.put("role","system");
-        systemMessage.put("content","You are an assistant that just provides code for restful services.");
+        systemMessage.put("content","You are an programming assistant that completes code.");
         messages.add(systemMessage);
         JSONObject userMessage = new JSONObject();
 
@@ -57,6 +57,7 @@ public class CodexAPI {
 
         if(res.isSuccess()) {
             JSONObject jsonRes = (JSONObject) JSONValue.parse(res.getBody());
+            System.out.println("Result: " + jsonRes.toJSONString());
             JSONArray choices = (JSONArray) jsonRes.get("choices");
             return choices;
         } else {
