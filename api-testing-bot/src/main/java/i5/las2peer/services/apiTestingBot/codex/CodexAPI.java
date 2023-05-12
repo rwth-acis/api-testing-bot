@@ -32,7 +32,7 @@ public class CodexAPI {
         JSONArray messages = new JSONArray();
         JSONObject systemMessage = new JSONObject();
         systemMessage.put("role","system");
-        systemMessage.put("content","You are an programming assistant that completes code.");
+        systemMessage.put("content","You are an programming assistant that completes code. You will not repeat the provided code, you continue with the completion.");
         messages.add(systemMessage);
         JSONObject userMessage = new JSONObject();
 

@@ -181,12 +181,12 @@ public class CodexTestGen {
 
         // get first choice
         JSONObject choice = (JSONObject) choices.get(0);
-        String text = (String) choice.get("text");
+        String text = (String) ((JSONObject)choice.get("message")).get("content");
 
-        System.out.println("Output: " +text);
+        System.out.println("Output: " +text + suffix);
 
         // replace [insert] with generated code
-        code = code.replace("[insert]", text) + suffix;
+        code = code.replace("[insert]", text);
 
         return code;
     }
