@@ -59,6 +59,7 @@ public class RESTResources {
         APITestingBot service = (APITestingBot) Context.get().getService();
         String codexAPIToken = service.getCodexAPIToken();
         String openAIModel = service.getOpenAIModel();
+        String openAISystemPrompt = service.getOpenAISystemPrompt();
 
         // setup message handler
         MessageHandler messageHandler;
@@ -84,7 +85,7 @@ public class RESTResources {
             }
 
             if(initialState == ENTER_TEST_CASE_DESCRIPTION) {
-                handleNextState = messageHandler.handleTestCaseDescription(responseMessageSB, context, message, codexAPIToken, openAIModel);
+                handleNextState = messageHandler.handleTestCaseDescription(responseMessageSB, context, message, codexAPIToken, openAIModel,openAISystemPrompt);
             }
 
             if (handleNextState && context.getState() == RC_SELECT_PROJECT) {

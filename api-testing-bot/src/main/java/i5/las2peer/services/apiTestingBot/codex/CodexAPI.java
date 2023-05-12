@@ -20,11 +20,14 @@ public class CodexAPI {
     private static final double TEMPERATURE = 0.2;
     private static final int MAX_TOKENS = 100;
 
+    private String openAISystemPrompt =  "You are an programming assistant that completes code. You will not repeat the provided code, you will continue with the completion where the user stopped.";
+
     private String apiToken;
 
-    public CodexAPI(String apiToken, String model) {
+    public CodexAPI(String apiToken, String model, String systemPrompt) {
         this.apiToken = apiToken;
         this.MODEL_NAME = model;
+        this.openAISystemPrompt = systemPrompt;
     }
 
     public JSONArray insert(String input, String stop) throws CodexAPIException {
@@ -32,7 +35,7 @@ public class CodexAPI {
         JSONArray messages = new JSONArray();
         JSONObject systemMessage = new JSONObject();
         systemMessage.put("role","system");
-        systemMessage.put("content","You are an programming assistant that completes code. You will not repeat the provided code, you continue with the completion.");
+        systemMessage.put("content",openAISystemPrompt);
         messages.add(systemMessage);
         JSONObject userMessage = new JSONObject();
 

@@ -28,10 +28,12 @@ public class CodexTestGen {
 
     private String codexAPIToken;
     private String openAIModel;
+    private String openAISystemPrompt;
 
-    public CodexTestGen(String codexAPIToken, String model) {
+    public CodexTestGen(String codexAPIToken, String model, String systemPrompt) {
         this.codexAPIToken = codexAPIToken;
         this.openAIModel = model;
+        this.openAISystemPrompt = systemPrompt;
     }
 
     public TestRequest descriptionToTestModel(String testCaseDescription) throws CodexAPI.CodexAPIException, IOException, CodeToTestModel.CodeToTestModelException {
@@ -177,7 +179,7 @@ public class CodexTestGen {
 
         System.out.println("Input: " +input);
         // call OpenAI API
-        JSONArray choices = new CodexAPI(codexAPIToken,openAIModel).insert(input, stop);
+        JSONArray choices = new CodexAPI(codexAPIToken,openAIModel,openAISystemPrompt).insert(input, stop);
 
         // get first choice
         JSONObject choice = (JSONObject) choices.get(0);

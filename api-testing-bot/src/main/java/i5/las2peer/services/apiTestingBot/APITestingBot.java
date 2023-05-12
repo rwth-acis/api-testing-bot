@@ -35,6 +35,7 @@ public class APITestingBot extends RESTService {
 
     private String codexAPIToken;
     private String openAIModel;
+    private String openAISystemPrompt;
 
     public APITestingBot() {
         setFieldValues();
@@ -133,5 +134,9 @@ public class APITestingBot extends RESTService {
 
     public String getOpenAIModel() {
         return openAIModel;
+    }
+    
+    public String getOpenAISystemPrompt(){
+        return openAISystemPrompt;
     }
 }
