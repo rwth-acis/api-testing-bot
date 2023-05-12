@@ -32,7 +32,7 @@ public class CodexAPI {
         body.put("model", MODEL_NAME);
         body.put("input", input);
         //body.put("suffix", suffix);
-        body.put("instruction",instruction)
+        body.put("instruction",instruction);
         body.put("temperature", TEMPERATURE);
         //body.put("max_tokens", MAX_TOKENS);
         body.put("n", 1);
