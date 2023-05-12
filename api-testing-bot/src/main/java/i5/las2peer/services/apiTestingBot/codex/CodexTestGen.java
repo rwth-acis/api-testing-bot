@@ -59,14 +59,14 @@ public class CodexTestGen {
         // insert status code assertion
         code = addInsertTag(code);
         code = code.replace("[insert]", "assertThat(statusCode, [insert];");
-        code = insert(code, instruction);
+        code = insert(code, instruction); // stop ;
 
         // insert other assertions
         int iterations = 5;
         for(int i = 0; i < iterations; i++) {
             String updatedContent = addInsertTag(new String(code));
             updatedContent = updatedContent.replace("[insert]", "assertThat(response, [insert];");
-            updatedContent = insert(updatedContent, instruction);
+            updatedContent = insert(updatedContent, instruction); // stop ;
 
             // get body assertions from current request model
             List<BodyAssertion> bodyAssertions = new ArrayList<>();
