@@ -84,7 +84,7 @@ public class Test {
      * JUnit test: Send post request to /example and check that status code is 201 and response has field "exampleText".
      */
     @Test
-    public void exampleTest() {
+    public void exampleTest1() {
         MiniClientCoverage c = new MiniClientCoverage(mainPath);
         c.setConnectorEndpoint(connector.getHttpEndpoint());
 
@@ -105,7 +105,7 @@ public class Test {
      * JUnit test: Send post request to /example/3 with body {"num": 5, "value": "Hi"} and check that status code is 201 and response has type json object.
      */
     @Test
-    public void exampleTest() {
+    public void exampleTest2() {
         MiniClientCoverage c = new MiniClientCoverage(mainPath);
         c.setConnectorEndpoint(connector.getHttpEndpoint());
 
