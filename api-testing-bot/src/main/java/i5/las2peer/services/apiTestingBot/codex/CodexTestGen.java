@@ -38,8 +38,8 @@ public class CodexTestGen {
 
     public TestRequest descriptionToTestModel(String testCaseDescription) throws CodexAPI.CodexAPIException, IOException, CodeToTestModel.CodeToTestModelException {
         String testCode = descriptionToCode(testCaseDescription);
-        System.out.println("testCode:");
-        System.out.println(testCode);
+        System.out.println("--------------\n" + "testCode:");
+        System.out.println(testCode + "\n--------------\n");
         Context.get().monitorEvent(MonitoringEvent.SERVICE_CUSTOM_ERROR_1, testCode);
         return new CodeToTestModel().convert(testCode);
     }
@@ -177,7 +177,7 @@ public class CodexTestGen {
         String input = code.split("\\[insert]")[0];
         String suffix = code.split("\\[insert]")[1];
 
-        System.out.println("Input: " +input);
+        System.out.println("--------------\n" + "Prompt: " + openAISystemPrompt +  "\nInput: " +input + "\n--------------\n");
         // call OpenAI API
         JSONArray choices = new CodexAPI(codexAPIToken,openAIModel,openAISystemPrompt).insert(input, stop);
 
@@ -185,12 +185,11 @@ public class CodexTestGen {
         JSONObject choice = (JSONObject) choices.get(0);
         String text = (String) ((JSONObject)choice.get("message")).get("content");
 
-        System.out.println("Output: " +text + suffix);
+        System.out.println("--------------\n" + "Output: " +text + suffix + "\n--------------\n");
 
         // replace [insert] with generated code
         code = code.replace("[insert]", text);
 
         return code;
     }
-
 }

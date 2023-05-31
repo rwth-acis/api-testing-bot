@@ -60,7 +60,7 @@ public class CodexAPI {
 
         if(res.isSuccess()) {
             JSONObject jsonRes = (JSONObject) JSONValue.parse(res.getBody());
-            System.out.println("Result: " + jsonRes.toJSONString());
+            System.out.println("--------------\n" + "Result: " + jsonRes.toJSONString() + "\n--------------\n");
             JSONArray choices = (JSONArray) jsonRes.get("choices");
             return choices;
         } else {
