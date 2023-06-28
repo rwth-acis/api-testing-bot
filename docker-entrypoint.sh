@@ -17,7 +17,8 @@ export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' gradle.properties
 export SERVICE=${SERVICE_NAME}.${SERVICE_CLASS}@${SERVICE_VERSION}
 
 function set_in_service_config {
-    sed -i 's?'${1}'[[:blank:]]*=.*?'${1}'='${2}'?g' "${SERVICE_PROPERTY_FILE}"
+    openAISystemPrompt_adjustedSpaces=$(sed 's?\ ?\\u020?g' <<< "${2}") # Replace spaces with unicode equivalent to have java properties parse them correctly
+    sed -i 's?'${1}'[[:blank:]]*=.*?'${1}'='${openAISystemPrompt_adjustedSpaces}'?g' "${SERVICE_PROPERTY_FILE}"
 }
 
 function set_in_web_config {

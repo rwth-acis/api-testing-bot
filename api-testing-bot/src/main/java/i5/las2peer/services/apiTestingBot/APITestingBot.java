@@ -137,7 +137,6 @@ public class APITestingBot extends RESTService {
     }
     
     public String getOpenAISystemPrompt(){
-        System.out.println("Prompt unaltered:" + openAISystemPrompt);
         return openAISystemPrompt;
     }
 }
