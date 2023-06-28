@@ -17,7 +17,7 @@ export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' gradle.properties
 export SERVICE=${SERVICE_NAME}.${SERVICE_CLASS}@${SERVICE_VERSION}
 
 function set_in_service_config {
-    openAISystemPrompt_adjustedSpaces=$(sed 's?\ ?\\u020?g' <<< "${2}") # Replace spaces with unicode equivalent to have java properties parse them correctly
+    openAISystemPrompt_adjustedSpaces=$(sed 's?\ ?\\\\u0020?g' <<< "${2}") # Replace spaces with unicode equivalent to have java properties parse them correctly
     sed -i 's?'${1}'[[:blank:]]*=.*?'${1}'='${openAISystemPrompt_adjustedSpaces}'?g' "${SERVICE_PROPERTY_FILE}"
 }
 
@@ -37,7 +37,7 @@ set_in_service_config gitHubAppId ${GITHUB_APP_ID}
 set_in_service_config gitHubAppPrivateKey ${GITHUB_APP_PRIVATE_KEY}
 set_in_service_config codexAPIToken ${CODEX_API_TOKEN}
 set_in_service_config openAIModel ${OPEN_AI_MODEL}
-set_in_service_config openAISystemPrompt ${OPEN_AI_SYSTEM_PROMPT}
+set_in_service_config openAISystemPrompt "${OPEN_AI_SYSTEM_PROMPT}"
 
 
 # set defaults for optional service parameters
