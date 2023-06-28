@@ -177,10 +177,10 @@ public class CodexTestGen {
         String input = code.split("\\[insert]")[0];
         String suffix = code.split("\\[insert]")[1];
 
-        openAISystemPrompt = "You are a code completion assistant, your task is to" +
-                             " add code to an incomplete method based on the example" +
-                             " methods in the given code and the comment above the incomplete method. Do not correct existing" +
-                             " code, only output your additional code.";
+        //openAISystemPrompt = "You are a code completion assistant, your task is to" +
+        //                     " add code to an incomplete method based on the example" +
+        //                     " methods in the given code and the comment above the incomplete method. Do not correct existing" +
+        //                     " code, only output your additional code.";
 
         System.out.println("--------------\n" + "Prompt: " + openAISystemPrompt +  "\nInput: " +input + "\n--------------\n");
         // call OpenAI API
