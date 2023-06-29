@@ -160,7 +160,7 @@ public class CodexTestGen {
             }
         }
         code = unit.toString();
-        code = code.replace("// [insert]", "[insert]\n");
+        code = code.replace("//[insert]", "[insert]\n");
         return code;
     }
 
