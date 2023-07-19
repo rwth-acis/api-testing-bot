@@ -216,6 +216,7 @@ public class RCMessageHandler extends MessageHandler {
         }
 
         JSONObject body = (JSONObject) JSONValue.parse(response.getBody());
+        System.out.println("BODY:\n" + body.toJSONString() + "\n\n");
         String openAPIDocStr = (String) body.get("docString");
         context.setOpenAPI(openAPIDocStr);
 
